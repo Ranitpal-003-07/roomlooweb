@@ -1,0 +1,154 @@
+.roommate-finder {
+  text-align: center;
+}
+
+.roommate-card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px;
+}
+
+
+
+.roommate-card-wrapper {
+  width: 300px;
+  height: 400px;
+  position: relative;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.roommate-card {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  backface-visibility: hidden;
+  background: #66a3ede6; /* Sky blue background */
+  color: white; /* White text */
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s;
+}
+
+.roommate-card h3, 
+.roommate-card p {
+  color: white; /* Ensure all text is white */
+}
+.roommate-card-back {
+  transform: rotateY(180deg);
+  background: rgba(255, 255, 255, 0.15); /* Frosted glass effect */
+  backdrop-filter: blur(10px);
+  color: white; /* Text color */
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.5s;
+}
+
+.roommate-card-back h3 {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.8);
+}
+
+.roommate-card-back p {
+  font-size: 1rem;
+  margin: 5px 0;
+  font-weight: 500;
+  text-align: left;
+}
+
+.roommate-card-back strong {
+  color: #ffdd57;
+  font-weight: bold;
+}
+
+/* Animated border effect */
+.roommate-card-back::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 12px;
+  background: linear-gradient(45deg, #ff6b6b, #ffa502, #1e90ff, #ff4757);
+  z-index: -1;
+  filter: blur(8px);
+  animation: glowing 6s linear infinite;
+}
+
+@keyframes glowing {
+  0% { filter: blur(8px) hue-rotate(0deg); }
+  50% { filter: blur(12px) hue-rotate(180deg); }
+  100% { filter: blur(8px) hue-rotate(360deg); }
+}
+
+.hidden {
+  display: none;
+}
+
+.profile-pic {
+  width: 150px; /* Increased size */
+  height: 150px; /* Increased size */
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border: 4px solid white; /* Increased border thickness */
+}
+
+
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.skip-btn,
+.like-btn {
+  border: 1px solid gold;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 30px;
+  transition: transform 0.2s;
+}
+
+.skip-btn {
+  background-color:#4caf50 ;
+}
+
+.like-btn {
+  background-color: #ff3b3b;
+}
+
+.skip-btn:hover {
+  background-color: #ff3b3b;
+}
+
+.like-btn:hover {
+  background-color: #3fa43f;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top: 5px solid #333;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

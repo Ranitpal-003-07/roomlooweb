@@ -1,0 +1,23 @@
+/* App.css */
+
+/* Ensure full height for layout */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Content pushes footer to the bottom */
+.content {
+  flex: 1;
+  padding: 20px;
+  margin-top: 60px; /* Adjust to avoid overlap with fixed navbar */
+}
+
+/* Ensure footer sticks at bottom */
+.footer {
+  text-align: center;
+  padding: 10px;
+  background: black;
+  color: white;
+}

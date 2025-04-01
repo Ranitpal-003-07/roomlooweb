@@ -1,0 +1,162 @@
+.update-card {
+  width: 60%;
+  height: auto;
+  min-width: 250px;
+  background: #87CEEB; /* Sky Blue */
+  color: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease-in-out;
+  margin-bottom: 15px;
+}
+
+.update-card:hover {
+  transform: scale(1.02);
+}
+
+.update-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.username {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+}
+
+.update-content {
+  font-size: 14px;
+  margin-top: 10px;
+  color: white;
+}
+
+.update-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 2px solid white;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.actions button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  transition: 0.2s;
+  color: white;
+}
+
+.actions button:hover {
+  transform: scale(1.1);
+}
+
+.icon{
+  width: 20px;
+  height: 20px;
+}
+
+/* 🎨 Icon Colors */
+.like-btn {
+  color: white;
+}
+
+.like-btn.liked {
+  color: #ff4d4d; /* ❤️ Red for Liked */
+  animation: likePop 0.3s ease-in-out;
+}
+
+.comment-btn {
+  color: #00bfff; /* 💬 Light Blue */
+}
+
+.share-btn {
+  color: #2ecc71; /* 🔗 Green */
+}
+
+/* Like Animation */
+@keyframes likePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Comment Section */
+.comment-section {
+  margin-top: 10px;
+  border-top: 1px solid white;
+  padding-top: 10px;
+}
+
+.comment-section input {
+  width: 80%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid white;
+  background: transparent;
+  color: white;
+}
+
+.comment-section button {
+  padding: 8px 12px;
+  border: none;
+  background: #ffffff;
+  color: #007bff;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.comment-section button:hover {
+  background: #007bff;
+  color: white;
+}
+
+.comment {
+  font-size: 14px;
+  color: white;
+  margin-top: 5px;
+}
+
+/* Share Options */
+.share-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.share-options button {
+  padding: 8px 12px;
+  border: none;
+  background: white;
+  color: #007bff;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.share-options button:hover {
+  background: #007bff;
+  color: white;
+}

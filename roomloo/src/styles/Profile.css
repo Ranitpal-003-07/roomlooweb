@@ -1,0 +1,239 @@
+/* Background with Glitter Effect */
+.glitter-bg {
+  position: relative;
+  border-radius: 3rem;
+  width: 100%;
+  height: 100vh;
+  background-image: url("/assets/bg3.jpg");
+  background-size: cover;
+  background-position: 10% 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Rotating Profile Card */
+.rotating-card {
+  width: 320px;
+  height: 420px;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  border-radius: 2rem;
+  box-shadow: 0px 10px 30px rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  transition: transform 0.3s ease-in-out;
+  animation: rotate 2s ease-in-out infinite alternate;
+}
+
+.rotating-card:hover {
+  transform: scale(1.1);
+  animation: none;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Profile Image */
+.profile-image {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-image img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid white;
+}
+
+.upload-btn {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  /* transform: translateX(-50%); */
+  background: rgb(255, 210, 210);
+  color: rgb(255, 212, 212);
+  border: none;
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.2s;
+  opacity: 0;
+  z-index: 10;
+}
+
+.profile-image:hover .upload-btn {
+  opacity: 10;
+}
+
+
+.upload-btn:hover {
+  background: rgba(255, 216, 216, 0.8);
+}
+
+.upload-btn:focus {
+  outline: none;
+  transform: scale(1.05);
+}
+
+/* Profile Info */
+.profile-info {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.profile-info h2 {
+  font-size: 24px;
+  color: white;
+}
+
+.profile-info p {
+  font-size: 14px;
+  color: #f8f8f8;
+}
+
+/* User Details Section */
+.user-details-container {
+  text-align: center;
+  margin-top: 30px;
+}
+
+/* User Details Box */
+.user-details {
+  width: 90%;
+  max-width: 600px;
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  margin: auto;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.user-details h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #333;
+}
+
+/* Edit Form */
+.edit-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.edit-form .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-form label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.edit-form input,
+.edit-form select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #f9f9f9;
+}
+
+.edit-form input:focus,
+.edit-form select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Full-width input fields */
+.edit-form .form-group:nth-child(2n) {
+  grid-column: span 2;
+}
+
+.save-btn {
+  grid-column: span 2;
+  width: 100%;
+  padding: 12px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.save-btn:hover {
+  background: #218838;
+}
+
+/* User Info Display */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-info p {
+  font-size: 16px;
+  color: #444;
+  background: #f4f4f4;
+  padding: 10px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.user-info p:hover {
+  background: #e0e0e0;
+}
+
+/* Edit Button */
+.edit-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ffb400;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 15px;
+}
+
+.edit-btn:hover {
+  background: #e09c00;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .edit-form {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-form .form-group:nth-child(2n) {
+    grid-column: span 1;
+  }
+}
