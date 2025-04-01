@@ -1,15 +1,19 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import "../styles/PostModal.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { storage, db } from "../firebase"; // Import Firebase
+import { storage, db, auth } from "../firebase"; // Import Firebase
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useAuth } from "../context/AuthContext";
 
 const PostModal = ({ onClose, onSave }) => {
   const [description, setDescription] = useState(""); // Local state for description
   const [image, setImage] = useState(null); // Local state for image
   const [isUploading, setIsUploading] = useState(false); // Track upload status
+  const { user } = useAuth();
+
 
   // Handle image upload
   const handleImageUpload = (event) => {
@@ -33,9 +37,14 @@ const PostModal = ({ onClose, onSave }) => {
         imageUrl = await getDownloadURL(imageRef);
       }
 
+      // Get current authenticated user data
+      const userId = user ? user.uid : null; // User ID
+      const userName = user ? user.displayName : "Anonymous"; // User Name
+
       // Save post data to Firestore
       await addDoc(collection(db, "posts"), {
-        user: "Current User", // Replace with actual user data, or use Firebase Authentication user info
+        user: userName, // Save user name or default to "Anonymous"
+        userId: userId || "unknown", // Save user ID or default to "unknown"
         content: description,
         image: imageUrl || null,
         likes: 0,
@@ -44,10 +53,8 @@ const PostModal = ({ onClose, onSave }) => {
         timestamp: serverTimestamp(),
       });
 
-      // Clear inputs and close modal
       setIsUploading(false);
-      onSave(); // Notify parent to refresh the list of posts
-      onClose(); // Close modal after saving the post
+      onClose(); // Close the modal
     }
   };
 
@@ -78,15 +85,15 @@ const PostModal = ({ onClose, onSave }) => {
             <p>No Image</p>
           )}
         </div>
-          <label className="upload-btn12">
-            <FontAwesomeIcon icon={faImage} /> Add Image
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              style={{display:"none"}}
-            />
-          </label>
+        <label className="upload-btn12">
+          <FontAwesomeIcon icon={faImage} /> Add Image
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            style={{ display: "none" }}
+          />
+        </label>
 
         {/* File upload button */}
 

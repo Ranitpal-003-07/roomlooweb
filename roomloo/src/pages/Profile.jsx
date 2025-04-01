@@ -37,7 +37,7 @@ const Profile = () => {
           const data = userSnap.data();
           setUserData({
             ...data,
-            profilePic: data.profilePic || user.photoURL || "/assets/default-profile.png",
+            profilePic: data.profilePic || user.photoURL || "/assets/usr1.jpg",
           });
         } else {
           // First-time login: Use Google profile picture or default
@@ -109,7 +109,7 @@ const Profile = () => {
         >
           {/* Profile Image with Upload Option */}
           <div className="profile-image">
-            <img src={userData.profilePic || "/assets/default-profile.png"} alt="User" />
+            <img src={userData.profilePic || "/assets/usr1.jpg"} alt="User" />
               <input type="file" accept="image/*" onChange={handleImageUpload} className="upload-btn" />
           </div>
 

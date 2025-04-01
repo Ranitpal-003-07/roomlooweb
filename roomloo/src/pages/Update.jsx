@@ -6,6 +6,7 @@ import { db, storage } from "../firebase";
 import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../styles/UpdatePage.css";
+import { reload } from "firebase/auth";
 
 const UpdatePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,7 +30,7 @@ const UpdatePage = () => {
             id: 1,
             user: "Roomloo Admin",
             content: "Welcome to Roomloo! Find PGs and Roommates easily. Stay updated with our latest features!",
-            image: "/assets/default-post.jpg",
+            image: "/assets/bg2.jpg",
             likes: 0,
             comments: 0,
             shares: 0,
@@ -38,7 +39,7 @@ const UpdatePage = () => {
             id: 2,
             user: "Roomloo Admin",
             content: "We have improved our search functionality for PGs. Try it out!",
-            image: "/assets/default-post.jpg",
+            image: "/assets/bg1.jpg",
             likes: 0,
             comments: 0,
             shares: 0,
@@ -51,12 +52,6 @@ const UpdatePage = () => {
 
     fetchPosts();
   }, []);
-
-  
-
-  
-  
-
   return (
     <div className="update-container">
       {/* Updates List */}
@@ -84,6 +79,7 @@ const UpdatePage = () => {
       {isModalOpen && (
         <PostModal
           onClose={() => setIsModalOpen(false)}
+        
         />
       )}
     </div>
