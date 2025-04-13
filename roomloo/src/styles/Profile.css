@@ -1,239 +1,233 @@
-/* Background with Glitter Effect */
-.glitter-bg {
+.profile-page-container {
+  background-color: rgb(255, 247, 236);
+  margin: 1.5rem; 
+  padding-bottom: 3rem;
+}
+.profile-header {
   position: relative;
-  border-radius: 3rem;
   width: 100%;
-  height: 100vh;
-  background-image: url("/assets/bg3.jpg");
-  background-size: cover;
-  background-position: 10% 30%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  height: 250px;
+  margin-bottom: 3rem;
 }
 
-/* Rotating Profile Card */
-.rotating-card {
-  width: 320px;
-  height: 420px;
-  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-  border-radius: 2rem;
-  box-shadow: 0px 10px 30px rgba(255, 255, 255, 0.2);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  transition: transform 0.3s ease-in-out;
-  animation: rotate 2s ease-in-out infinite alternate;
-}
-
-.rotating-card:hover {
-  transform: scale(1.1);
-  animation: none;
-}
-
-@keyframes rotate {
-  from {
-    transform: rotateY(0deg);
-  }
-  to {
-    transform: rotateY(360deg);
-  }
-}
-
-/* Profile Image */
-.profile-image {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.profile-image img {
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
+.cover-photo {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border: 5px solid white;
+  border-radius: 1rem 1rem 0 0;
 }
 
-.upload-btn {
+.profile-photo-wrapper {
   position: absolute;
-  bottom: 5px;
-  left: 50%;
-  /* transform: translateX(-50%); */
-  background: rgb(255, 210, 210);
-  color: rgb(255, 212, 212);
-  border: none;
-  padding: 8px 12px;
-  font-size: 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: opacity 0.3s, transform 0.2s;
-  opacity: 0;
-  z-index: 10;
+  bottom: -5rem;
+  left: 1rem;
+  align-items: center;
 }
 
-.profile-image:hover .upload-btn {
-  opacity: 10;
-}
-
-
-.upload-btn:hover {
-  background: rgba(255, 216, 216, 0.8);
-}
-
-.upload-btn:focus {
-  outline: none;
-  transform: scale(1.05);
-}
-
-/* Profile Info */
-.profile-info {
-  text-align: center;
-  margin-top: 15px;
-}
-
-.profile-info h2 {
-  font-size: 24px;
-  color: white;
-}
-
-.profile-info p {
-  font-size: 14px;
-  color: #f8f8f8;
-}
-
-/* User Details Section */
-.user-details-container {
-  text-align: center;
-  margin-top: 30px;
-}
-
-/* User Details Box */
-.user-details {
-  width: 90%;
-  max-width: 600px;
+.profile-photo {
+  position: relative;
+  width: 13rem;
+  height: 13rem;
+  border-radius: 50%; 
+  border: 3px solid white;
+  object-fit: cover;
   background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-  margin: auto;
-  margin-top: 20px;
-  text-align: left;
 }
 
-.user-details h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 22px;
-  color: #333;
-}
-
-/* Edit Form */
-.edit-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.edit-form .form-group {
+.connect-with-me {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
+  margin-top: -2.5rem;
+  margin-right: 5rem;
 }
 
-.edit-form label {
-  font-size: 14px;
-  font-weight: bold;
+.connect-with-me h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-right: 3rem;
+}
+
+.social-icons {
+  display: flex;
+  gap: 1rem;
+}
+
+.icon-btn {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid gold;
+  border-radius: 1rem;
+  padding: 0.6rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.7 color 0.7s ease-in-out;
+}
+
+/* LinkedIn */
+.icon-btn:nth-child(1):hover {
+  background-color: #0a66c2;
+  color: #ffffff;
+}
+
+/* GitHub */
+.icon-btn:nth-child(2):hover {
+  background-color: #24292e;
+  color: #ffffff;
+}
+
+/* Instagram */
+.icon-btn:nth-child(3):hover {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+  color: #ffffff;
+}
+
+/* Twitter */
+.icon-btn:nth-child(4):hover {
+  background-color: #1da1f2;
+  color: #ffffff;
+}
+
+.icon-btn:nth-child(5):hover {
+  background-color: #0e76a8; /* You can change this to any web-like color */
+  color: #ffffff;
+}
+
+.profile-header-left {
+  margin-left: 10rem;
+  margin-top: 1rem;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-name {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.verified-icon {
+  position: relative;
+  display: inline-block;
+  font-size: 1.6rem;
+  color: #e2e2e2; /* LinkedIn blue */
+}
+
+.shield-icon {
+  font-size: 1.6rem;  /* Size for shield */
+}
+
+.check-icon {
+  position: absolute;
+  top: 5px;   /* Position the checkmark inside the shield */
+  left: 5px;
+  font-size: 1rem;   /* Size for check */
+  color: #000000;
+}
+
+
+.user-pronouns {
+  margin-top: 0.2rem;
   color: #555;
-  margin-bottom: 5px;
+  font-size: 1rem;
 }
-
-.edit-form input,
-.edit-form select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-  background: #f9f9f9;
-}
-
-.edit-form input:focus,
-.edit-form select:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-/* Full-width input fields */
-.edit-form .form-group:nth-child(2n) {
-  grid-column: span 2;
-}
-
-.save-btn {
-  grid-column: span 2;
-  width: 100%;
-  padding: 12px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s;
-  margin-top: 10px;
-}
-
-.save-btn:hover {
-  background: #218838;
-}
-
-/* User Info Display */
-.user-info {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.user-info p {
-  font-size: 16px;
-  color: #444;
-  background: #f4f4f4;
-  padding: 10px;
-  border-radius: 8px;
-  transition: 0.3s;
-}
-
-.user-info p:hover {
-  background: #e0e0e0;
-}
-
-/* Edit Button */
 .edit-btn {
-  width: 100%;
-  padding: 12px;
-  background: #ffb400;
-  color: white;
+  background: none;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  color: #333;
+  margin-left: 0.5rem;
   cursor: pointer;
-  transition: 0.3s;
-  margin-top: 15px;
+  font-size: 1rem;
+  transition: color 0.2s;
 }
 
 .edit-btn:hover {
-  background: #e09c00;
+  color: #0073b1; /* LinkedIn blue or your accent color */
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .edit-form {
-    grid-template-columns: 1fr;
-  }
-
-  .edit-form .form-group:nth-child(2n) {
-    grid-column: span 1;
-  }
+.infoooo{
+  display: flex;
+  flex-direction: row;
 }
+
+.profile-basic-info {
+  width: 50%;
+  margin-top: .8rem;
+  margin-left: 10rem;
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: row;
+}
+
+.info-item span {
+  font-size: 1rem;
+  color: #633434;
+  font-weight: 600;
+}
+.college-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: -2rem;
+  gap: 1rem;
+  max-width: fit-content;
+  padding-left: 2rem;
+}
+
+.college-logo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  
+}
+
+.college-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: navy;
+}
+
+.status-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-wrap: wrap; 
+}
+
+.status-btn {
+  background-color: #ffffff;
+  border: 2px solid navy;
+  color: navy;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.8rem 1.5rem;
+  margin: 0.5rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  text-align: center;
+}
+
+.status-btn:hover {
+  background-color: navy;
+  color: #fff;
+}
+
+
