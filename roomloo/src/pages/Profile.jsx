@@ -4,9 +4,9 @@ import { faShieldAlt, faCheck, faPen } from '@fortawesome/free-solid-svg-icons';
 
 
 
-const Profile = () => {
- 
 
+
+const Profile = () => {
   return (
     <>
       <div className="profile-page-container">
@@ -70,7 +70,97 @@ const Profile = () => {
         <button className="status-btn">Has Roommate</button>
         <button className="status-btn">Has Place to Stay</button>
       </div>
-      
+      <div className="about-preference-section">
+        {/* About Me Section */}
+        <div className="about-me">
+          <div className="section-header">
+            <h3>About Me</h3>
+            <i className="fas fa-edit edit-icon"></i>
+          </div>
+          <p className="about-text">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. A short intro about the user can go here.
+          </p>
+        </div>
+
+        {/* Gender Preference Section */}
+        <div className="gender-preference">
+          <div className="section-header">
+            <h3>Preference</h3>
+            <i className="fas fa-edit edit-icon"></i>
+          </div>
+          <p className="preference-value">Prefers: Female</p>
+        </div>
+      </div>
+      <div className="thirty-seventy-container">
+        <div className="left-section">
+          <div className="hobbies-header">
+            <h3>Hobbies</h3>
+            <button className="add-hobby-btn">
+              <i className="fas fa-plus"></i>
+            </button>
+          </div>
+          <div className="hobby-list">
+            <div className="hobby-chip">
+              Reading <span className="remove-btn">&times;</span>
+            </div>
+            <div className="hobby-chip">
+              Gaming <span className="remove-btn">&times;</span>
+            </div>
+            <div className="hobby-chip">
+              Cooking <span className="remove-btn">&times;</span>
+            </div>
+          </div>
+        </div>
+        <div className="right-section">
+          {/* Interests Section */}
+          <div className="interests-box">
+            <div className="box-header">
+              <h4>Interests</h4>
+              <button className="add-icon"><i className="fas fa-plus"></i></button>
+            </div>
+            <div className="capsule-container">
+              <span className="capsule">AI <span className="remove-btn">&times;</span></span>
+              <span className="capsule">Music <span className="remove-btn">&times;</span></span>
+              <span className="capsule">Photography <span className="remove-btn">&times;</span></span>
+            </div>
+          </div>
+
+          {/* Address Section */}
+          <div className="address-box">
+          <div className="section-header">
+            <h4>Address</h4>
+            <i className="fas fa-edit edit-icon"></i>
+          </div>
+            <p>221B Baker Street, London, United Kingdom</p>
+          </div>
+        </div>
+      </div>
+      <div className="favorites-section">
+        <div className="favorite-box">
+          <div className="box-header">
+            <h4>Way to Your Heart</h4>
+            <i className="fas fa-edit edit-icon"></i>
+          </div>
+          <div className="descpt">
+            
+          </div>
+        </div>
+
+        <div className="favorite-box">
+          <div className="box-header">
+            <h4>Your Tummy Chargers</h4>
+            <i className="fas fa-plus add-icon"></i>
+          </div>
+          <div className="food-tags">
+            <span className="food-tag">Pizza <button className="remove-btn">×</button></span>
+            <span className="food-tag">Biryani <button className="remove-btn">×</button></span>
+          </div>
+        </div>
+      </div>
+      <div className="current-hostel-container">
+        <h4>Current Hostel</h4>
+        <p className="hostel-name">Hostel Phoenix</p>
+      </div>
 
     </>
   );
