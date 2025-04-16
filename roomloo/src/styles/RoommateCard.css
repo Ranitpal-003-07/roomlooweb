@@ -1,0 +1,49 @@
+.roommate-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 350px;
+    background: #fefefe;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .roommate-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .roommate-img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+  }
+  
+  .roommate-info {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .roommate-info h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #222;
+  }
+  
+  .roommate-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #444;
+  }
+  
+  .match-percentage {
+    margin-top: 0.5rem;
+    font-weight: bold;
+    color: #4CAF50;
+  }
+  

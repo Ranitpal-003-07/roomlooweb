@@ -1,154 +1,154 @@
-.roommate-finder {
-  text-align: center;
-}
-
-.roommate-card-container {
+.roommate-page {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 1000px;
-}
-
-
-
-.roommate-card-wrapper {
-  width: 300px;
-  height: 400px;
-  position: relative;
-  transform-style: preserve-3d;
-  cursor: pointer;
-}
-
-.roommate-card {
   width: 100%;
-  height: 100%;
-  position: absolute;
-  backface-visibility: hidden;
-  background: #66a3ede6; /* Sky blue background */
-  color: white; /* White text */
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  gap: 2rem;
+}
+
+/* Left: 70% */
+.roommate-left {
+  width: 70%;
+  background-color: #f7f9fa;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: auto;
+}
+
+.roommate-right {
+  width: 30%;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  height: 85vh;
+  overflow: auto;
+  position: sticky;
+  top: 2rem;
+  scroll-behavior: smooth;
+}
+
+
+.filter-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+
+.filter-group {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  transition: background 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+/* Pastel Pink */
+.filter-group:nth-child(4n+1) {
+  background-color: #fef6f9;
+}
+.filter-group:nth-child(4n+1):hover {
+  background-color: #fddde8;
+}
+
+/* Pastel Blue */
+.filter-group:nth-child(4n+2) {
+  background-color: #f6faff;
+}
+.filter-group:nth-child(4n+2):hover {
+  background-color: #d6ecff;
+}
+
+/* Pastel Green */
+.filter-group:nth-child(4n+3) {
+  background-color: #f6fff8;
+}
+.filter-group:nth-child(4n+3):hover {
+  background-color: #d3f9e3;
+}
+
+/* Pastel Orange */
+.filter-group:nth-child(4n) {
+  background-color: #fff9f6;
+}
+.filter-group:nth-child(4n):hover {
+  background-color: #ffe1c9;
+}
+
+
+.filter-group label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  display: block;
+  color: #555;
+}
+
+.filter-group div {
+  display: flex;
+  align-items: center;
+  margin-top: 0.4rem;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.filter-search {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.filter-search:focus {
+  outline: none;
+  border-color: #333;
+}
+
+.college-filter {
+  background-color: #f6faff; /* Pastel blue */
+}
+.college-filter:hover {
+  background-color: #d6ecff;
+}
+
+.college-search {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.college-checkboxes {
+  max-height: 150px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.5s;
+  gap: 0.4rem;
 }
 
-.roommate-card h3, 
-.roommate-card p {
-  color: white; /* Ensure all text is white */
+/* Scrollbar styling */
+.college-checkboxes::-webkit-scrollbar {
+  width: 6px;
 }
-.roommate-card-back {
-  transform: rotateY(180deg);
-  background: rgba(255, 255, 255, 0.15); /* Frosted glass effect */
-  backdrop-filter: blur(10px);
-  color: white; /* Text color */
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  transition: transform 0.5s;
+.college-checkboxes::-webkit-scrollbar-thumb {
+  background: #c6d6e0;
+  border-radius: 10px;
 }
-
-.roommate-card-back h3 {
-  font-size: 1.6rem;
-  margin-bottom: 10px;
-  text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.8);
-}
-
-.roommate-card-back p {
-  font-size: 1rem;
-  margin: 5px 0;
-  font-weight: 500;
-  text-align: left;
-}
-
-.roommate-card-back strong {
-  color: #ffdd57;
-  font-weight: bold;
-}
-
-/* Animated border effect */
-.roommate-card-back::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 12px;
-  background: linear-gradient(45deg, #ff6b6b, #ffa502, #1e90ff, #ff4757);
-  z-index: -1;
-  filter: blur(8px);
-  animation: glowing 6s linear infinite;
-}
-
-@keyframes glowing {
-  0% { filter: blur(8px) hue-rotate(0deg); }
-  50% { filter: blur(12px) hue-rotate(180deg); }
-  100% { filter: blur(8px) hue-rotate(360deg); }
-}
-
-.hidden {
-  display: none;
-}
-
-.profile-pic {
-  width: 150px; /* Increased size */
-  height: 150px; /* Increased size */
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 15px;
-  border: 4px solid white; /* Increased border thickness */
-}
-
-
-.buttons {
-  margin-top: 20px;
+.roommate-grid {
   display: flex;
-  justify-content: center;
-  gap: 20px;
+  flex-wrap: wrap;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
 }
 
-.skip-btn,
-.like-btn {
-  border: 1px solid gold;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 30px;
-  transition: transform 0.2s;
-}
-
-.skip-btn {
-  background-color:#4caf50 ;
-}
-
-.like-btn {
-  background-color: #ff3b3b;
-}
-
-.skip-btn:hover {
-  background-color: #ff3b3b;
-}
-
-.like-btn:hover {
-  background-color: #3fa43f;
-}
-
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(0, 0, 0, 0.1);
-  border-top: 5px solid #333;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
