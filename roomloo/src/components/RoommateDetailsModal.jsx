@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { FaTimes, FaHeart, FaUtensils, FaHome, FaUser, FaSchool, FaMapMarkerAlt, FaInfo, FaUserFriends, FaGuitar, FaStar } from "react-icons/fa";
+import { FaHeart, FaUtensils, FaHome, FaUser, FaSchool, FaMapMarkerAlt, FaInfo, FaUserFriends, FaGuitar } from "react-icons/fa";
 import "../styles/RoommateModal.css";
 
 const RoommateDetailsModal = ({ roommate, onClose }) => {
@@ -22,10 +22,6 @@ const RoommateDetailsModal = ({ roommate, onClose }) => {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
-        <button className="close-btn" onClick={onClose}>
-          <FaTimes />
-        </button>
-        
         {/* Header with profile image and basic info */}
         <div className="profile-header">
           <div className="profile-image-container">
