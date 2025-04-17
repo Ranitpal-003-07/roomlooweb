@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles/PostModal.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faImage, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faImage, faTimes, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { storage, db, auth } from "../firebase"; // Import Firebase
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
@@ -12,8 +12,8 @@ const PostModal = ({ onClose, onSave }) => {
   const [description, setDescription] = useState(""); // Local state for description
   const [image, setImage] = useState(null); // Local state for image
   const [isUploading, setIsUploading] = useState(false); // Track upload status
+  const [dragActive, setDragActive] = useState(false); // Track drag state
   const { user } = useAuth();
-
 
   // Handle image upload
   const handleImageUpload = (event) => {
@@ -23,24 +23,41 @@ const PostModal = ({ onClose, onSave }) => {
     }
   };
 
+  // Handle drag events
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  // Handle drop event
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setImage(e.dataTransfer.files[0]);
+    }
+  };
+
   // Handle form submission (creating a new post)
   const handleSubmit = async () => {
     if (description.trim() || image) {
       setIsUploading(true);
-
       let imageUrl = null;
-
       // Upload image to Firebase Storage if there's one
       if (image) {
         const imageRef = ref(storage, `posts/${Date.now()}_${image.name}`);
         await uploadBytes(imageRef, image);
         imageUrl = await getDownloadURL(imageRef);
       }
-
       // Get current authenticated user data
       const userId = user ? user.uid : null; // User ID
       const userName = user ? user.displayName : "Anonymous"; // User Name
-
       // Save post data to Firestore
       await addDoc(collection(db, "posts"), {
         user: userName, // Save user name or default to "Anonymous"
@@ -52,7 +69,6 @@ const PostModal = ({ onClose, onSave }) => {
         shares: 0,
         timestamp: serverTimestamp(),
       });
-
       setIsUploading(false);
       onClose(); // Close the modal
     }
@@ -66,25 +82,43 @@ const PostModal = ({ onClose, onSave }) => {
     }
   }, [isUploading]);
 
+  // Prevent scrolling on the background when modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   return (
-    <div className="post-modal">
-      <div className="modal-content">
+    <div className="post-modal" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
         <button className="close-btn" onClick={onClose}>
           <FontAwesomeIcon icon={faTimes} />
         </button>
+        
         <h2>Create a Post</h2>
+        
         <textarea
-          placeholder="Write something interesting..."
+          placeholder="What's on your mind? Share with your roommates..."
           value={description}
           onChange={(e) => setDescription(e.target.value)} // Handle description input
         />
-        <div className="image-preview">
+        
+        <div 
+          className={`image-preview ${dragActive ? 'drag-active' : ''}`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
           {image ? (
             <img src={URL.createObjectURL(image)} alt="Preview" className="preview-image" />
           ) : (
-            <p>No Image</p>
+            <p>Drag and drop an image or click "Add Image"</p>
           )}
         </div>
+        
         <label className="upload-btn12">
           <FontAwesomeIcon icon={faImage} /> Add Image
           <input
@@ -94,11 +128,18 @@ const PostModal = ({ onClose, onSave }) => {
             style={{ display: "none" }}
           />
         </label>
-
-        {/* File upload button */}
-
-        <button className="submit-btn" onClick={handleSubmit} disabled={isUploading}>
-          {isUploading ? "Uploading..." : "Post"}
+        
+        <button 
+          className="submit-btn" 
+          onClick={handleSubmit} 
+          disabled={isUploading || (!description.trim() && !image)}
+        >
+          {isUploading ? "Uploading..." : (
+            <>
+              <FontAwesomeIcon icon={faPaperPlane} style={{ marginRight: '8px' }} /> 
+              Post Update
+            </>
+          )}
         </button>
       </div>
     </div>

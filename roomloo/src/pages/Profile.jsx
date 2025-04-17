@@ -1,168 +1,220 @@
-import '../styles/Profile.css';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShieldAlt, faCheck, faPen } from '@fortawesome/free-solid-svg-icons';
-
-
-
-
+import { 
+  faShieldAlt, 
+  faCheck, 
+  faPen, 
+  faPlus, 
+  faEdit, 
+  faTimes,
+  faGlobe
+} from '@fortawesome/free-solid-svg-icons';
+import { 
+  faLinkedinIn, 
+  faGithub, 
+  faInstagram, 
+  faTwitter 
+} from '@fortawesome/free-brands-svg-icons';
 
 const Profile = () => {
+  const [activeStatus, setActiveStatus] = useState('Needs Roommate');
+  
   return (
-    <>
-      <div className="profile-page-container">
-      <div className="profile-header">
-        <img src="/assets/bg2.jpg" alt="Cover" className="cover-photo" />
-        <div className="profile-photo-wrapper">
-          <img src='/assets/bg1.jpg' alt="Profile" className="profile-photo" />
+    <div className="pr-container">
+      {/* Header Section */}
+      <div className="pr-header">
+        <img src="/assets/bg2.jpg" alt="Cover" className="pr-cover-photo" />
+        <div className="pr-photo-wrapper">
+          <img src='/assets/bg1.jpg' alt="Profile" className="pr-profile-photo" />
+        </div>
+        <div className="pr-connect">
+          <h4>Connect with me</h4>
+          <div className="pr-social-icons">
+            <button className="pr-icon-btn">
+              <FontAwesomeIcon icon={faLinkedinIn} />
+            </button>
+            <button className="pr-icon-btn">
+              <FontAwesomeIcon icon={faGithub} />
+            </button>
+            <button className="pr-icon-btn">
+              <FontAwesomeIcon icon={faInstagram} />
+            </button>
+            <button className="pr-icon-btn">
+              <FontAwesomeIcon icon={faTwitter} />
+            </button>
+            <button className="pr-icon-btn">
+              <FontAwesomeIcon icon={faGlobe} />
+            </button>
+          </div>
         </div>
       </div>
-      <div className="connect-with-me">
-        <h4>Connect with me</h4>
-        <div className="social-icons">
-          <button className="icon-btn"><i className="fab fa-linkedin-in"></i></button>
-          <button className="icon-btn"><i className="fab fa-github"></i></button>
-          <button className="icon-btn"><i className="fab fa-instagram"></i></button>
-          <button className="icon-btn"><i className="fab fa-twitter"></i></button>
-          <button className="icon-btn"><i className="fas fa-globe"></i></button>
-        </div>
-      </div>
-      <div className="profile-header-left">
-        <div className="profile-name-row">
-          <h2 className="user-name">John Doe</h2>
-          <span className="verified-icon" title="Verified">
-            <FontAwesomeIcon icon={faShieldAlt} className="shield-icon" />
-            <FontAwesomeIcon icon={faCheck} className="check-icon" />
+
+      {/* Profile Header Info */}
+      <div className="pr-header-info">
+        <div className="pr-name-row">
+          <h1 className="pr-user-name">John Doe</h1>
+          <span className="pr-verified" title="Verified">
+            <FontAwesomeIcon icon={faShieldAlt} className="pr-shield-icon" />
+            <FontAwesomeIcon icon={faCheck} className="pr-check-icon" />
           </span>
-          <p className="user-pronouns">(He/Him)</p>
-          <button className="edit-btn" title="Edit Profile">
+          <p className="pr-pronouns">(He/Him)</p>
+          <button className="pr-edit-btn" title="Edit Profile">
             <FontAwesomeIcon icon={faPen} />
           </button>
         </div>
       </div>
-      <div className="infoooo">
-        <div className="profile-basic-info">
-          {/* First Row: Age and Gender */}
-          <div className="info-row">
-            <div className="info-item">
-              <span>25,</span> {/* Replace with dynamic value later */}          
-              <span>Male</span> {/* Replace with dynamic value later */}
-            </div>
+
+      {/* User Basic Info */}
+      <div className="pr-info">
+        <div className="pr-basic-info">
+          <div className="pr-info-row">
+            <span className="pr-info-item">25, Male</span>
           </div>
-          <div className="info-row">
-            <div className="info-item">
-              <span>Bangalore, India</span> {/* Replace with dynamic value later */}
-            </div>
+          <div className="pr-info-row">
+            <span className="pr-info-item">Bangalore, India</span>
           </div>
         </div>
-        <div className="college-section">
-          <img
-            src="/assets/bg3.jpg" // Replace with actual logo URL or dynamic path
-            alt="College Logo"
-            className="college-logo"
+        <div className="pr-college">
+          <img 
+            src="/assets/bg3.jpg" 
+            alt="College Logo" 
+            className="pr-college-logo" 
           />
-          <div className="college-name">National Institute of Technology</div>
+          <span className="pr-college-name">National Institute of Technology</span>
         </div>
       </div>
+
+      {/* Status Buttons */}
+      <div className="pr-status">
+        {[
+          'Needs Roommate', 
+          'Needs Place to Stay', 
+          'Has Roommate', 
+          'Has Place to Stay'
+        ].map(status => (
+          <button 
+            key={status}
+            className={`pr-status-btn ${activeStatus === status ? 'active' : ''}`}
+            onClick={() => setActiveStatus(status)}
+          >
+            {status}
+          </button>
+        ))}
       </div>
-      <div className="status-container">
-        <button className="status-btn">Needs Roommate</button>
-        <button className="status-btn">Needs Place to Stay</button>
-        <button className="status-btn">Has Roommate</button>
-        <button className="status-btn">Has Place to Stay</button>
-      </div>
-      <div className="about-preference-section">
-        {/* About Me Section */}
-        <div className="about-me">
-          <div className="section-header">
+
+      {/* About and Preference Section */}
+      <div className="pr-about-section">
+        <div className="pr-about">
+          <div className="pr-section-header">
             <h3>About Me</h3>
-            <i className="fas fa-edit edit-icon"></i>
+            <FontAwesomeIcon icon={faEdit} className="pr-edit-icon" />
           </div>
-          <p className="about-text">
+          <p className="pr-about-text">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. A short intro about the user can go here.
           </p>
         </div>
-
-        {/* Gender Preference Section */}
-        <div className="gender-preference">
-          <div className="section-header">
+        <div className="pr-preference">
+          <div className="pr-section-header">
             <h3>Preference</h3>
-            <i className="fas fa-edit edit-icon"></i>
+            <FontAwesomeIcon icon={faEdit} className="pr-edit-icon" />
           </div>
-          <p className="preference-value">Prefers: Female</p>
+          <p className="pr-preference-value">Prefers: Female</p>
         </div>
       </div>
-      <div className="thirty-seventy-container">
-        <div className="left-section">
-          <div className="hobbies-header">
+
+      {/* Content Layout */}
+      <div className="pr-content-grid">
+        {/* Hobbies Section */}
+        <div className="pr-hobbies">
+          <div className="pr-hobbies-header">
             <h3>Hobbies</h3>
-            <button className="add-hobby-btn">
-              <i className="fas fa-plus"></i>
+            <button className="pr-add-btn">
+              <FontAwesomeIcon icon={faPlus} />
             </button>
           </div>
-          <div className="hobby-list">
-            <div className="hobby-chip">
-              Reading <span className="remove-btn">&times;</span>
-            </div>
-            <div className="hobby-chip">
-              Gaming <span className="remove-btn">&times;</span>
-            </div>
-            <div className="hobby-chip">
-              Cooking <span className="remove-btn">&times;</span>
-            </div>
+          <div className="pr-hobby-list">
+            {['Reading', 'Gaming', 'Cooking'].map(hobby => (
+              <div key={hobby} className="pr-hobby-chip">
+                {hobby}
+                <span className="pr-remove-btn">
+                  <FontAwesomeIcon icon={faTimes} />
+                </span>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="right-section">
-          {/* Interests Section */}
-          <div className="interests-box">
-            <div className="box-header">
+
+        {/* Right Section Boxes */}
+        <div className="pr-right-content">
+          <div className="pr-box">
+            <div className="pr-box-header">
               <h4>Interests</h4>
-              <button className="add-icon"><i className="fas fa-plus"></i></button>
+              <button className="pr-add-btn">
+                <FontAwesomeIcon icon={faPlus} />
+              </button>
             </div>
-            <div className="capsule-container">
-              <span className="capsule">AI <span className="remove-btn">&times;</span></span>
-              <span className="capsule">Music <span className="remove-btn">&times;</span></span>
-              <span className="capsule">Photography <span className="remove-btn">&times;</span></span>
+            <div className="pr-capsule-container">
+              {['AI', 'Music', 'Photography'].map(interest => (
+                <span key={interest} className="pr-capsule">
+                  {interest}
+                  <span className="pr-remove-btn">
+                    <FontAwesomeIcon icon={faTimes} />
+                  </span>
+                </span>
+              ))}
             </div>
           </div>
-
-          {/* Address Section */}
-          <div className="address-box">
-          <div className="section-header">
-            <h4>Address</h4>
-            <i className="fas fa-edit edit-icon"></i>
-          </div>
-            <p>221B Baker Street, London, United Kingdom</p>
+          <div className="pr-box">
+            <div className="pr-box-header">
+              <h4>Address</h4>
+              <FontAwesomeIcon icon={faEdit} className="pr-edit-icon" />
+            </div>
+            <p className="pr-address-text">221B Baker Street, London, United Kingdom</p>
           </div>
         </div>
       </div>
-      <div className="favorites-section">
-        <div className="favorite-box">
-          <div className="box-header">
+
+      {/* Favorites Section */}
+      <div className="pr-favorites">
+        <div className="pr-favorite-box">
+          <div className="pr-box-header">
             <h4>Way to Your Heart</h4>
-            <i className="fas fa-edit edit-icon"></i>
+            <FontAwesomeIcon icon={faEdit} className="pr-edit-icon" />
           </div>
-          <div className="descpt">
-            
+          <div className="pr-food-tags">
+            {['Kindness', 'Humor', 'Intelligence', 'Loyalty'].map(trait => (
+              <span key={trait} className="pr-food-tag">
+                {trait}
+              </span>
+            ))}
           </div>
         </div>
-
-        <div className="favorite-box">
-          <div className="box-header">
+        <div className="pr-favorite-box">
+          <div className="pr-box-header">
             <h4>Your Tummy Chargers</h4>
-            <i className="fas fa-plus add-icon"></i>
+            <button className="pr-add-btn">
+              <FontAwesomeIcon icon={faPlus} />
+            </button>
           </div>
-          <div className="food-tags">
-            <span className="food-tag">Pizza <button className="remove-btn">×</button></span>
-            <span className="food-tag">Biryani <button className="remove-btn">×</button></span>
+          <div className="pr-food-tags">
+            {['Pizza', 'Biryani', 'Ice Cream', 'Pasta'].map(food => (
+              <span key={food} className="pr-food-tag">
+                {food}
+                <span className="pr-remove-btn">
+                  <FontAwesomeIcon icon={faTimes} />
+                </span>
+              </span>
+            ))}
           </div>
         </div>
       </div>
-      <div className="current-hostel-container">
-        <h4>Current Hostel</h4>
-        <p className="hostel-name">Hostel Phoenix</p>
-      </div>
 
-    </>
+      {/* Current Hostel */}
+      <div className="pr-hostel">
+        <h4>Current Hostel</h4>
+        <h2 className="pr-hostel-name">Hostel Phoenix</h2>
+      </div>
+    </div>
   );
 };
 

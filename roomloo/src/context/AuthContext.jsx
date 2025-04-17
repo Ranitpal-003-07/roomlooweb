@@ -8,18 +8,16 @@ import {
   signOut,
 } from "firebase/auth";
 
-
-export const AuthContext = createContext(); 
-
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // <-- Added loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false); // <-- Firebase finished checking auth state
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -30,8 +28,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => signOut(auth);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, logout }}>
-      {!loading && children} {/* <-- Prevents UI from rendering until Firebase finishes loading */}
+    <AuthContext.Provider value={{ user, setUser, loading, signup, login, logout }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

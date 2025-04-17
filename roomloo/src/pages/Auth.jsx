@@ -1,6 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { auth, googleProvider } from "../firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { db } from "../firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,28 +16,69 @@ const Login = () => {
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  const checkUserExistsAndRedirect = async (user) => {
+    const userRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(userRef);
+  
+    if (docSnap.exists()) {
+      navigate("/profile");
+    } else {
+      navigate("/onboarding");
+    }
+  };
+  
   const handleAuth = async (e) => {
     e.preventDefault();
     try {
+      let userCredential;
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+        userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+        const user = userCredential.user;
+  
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(userRef, {
+          email: user.email,
+          createdAt: new Date(),
+          onboardingComplete: false,
+        });
+  
+        navigate("/onboarding");
       } else {
-        await signInWithEmailAndPassword(auth, formData.email, formData.password);
+        userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+        const user = userCredential.user;
+        await checkUserExistsAndRedirect(user);
       }
-      navigate("/profile");
     } catch (err) {
       toast.error(err.message);
     }
   };
+  
+  
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      navigate("/profile");
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+  
+      const userRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userRef);
+  
+      if (!docSnap.exists()) {
+        await setDoc(userRef, {
+          email: user.email,
+          createdAt: new Date(),
+          onboardingComplete: false,
+        });
+        navigate("/onboarding");
+      } else {
+        navigate("/profile");
+      }
     } catch (err) {
       toast.error(err.message);
     }
   };
+  
+
 
   return (
     <div className="bdy">

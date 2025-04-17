@@ -25,7 +25,7 @@ const ProtectedRoute = () => {
   }, [user]);
 
   if (!user) return <Navigate to="/auth" replace />;
-  if (user && !isOnboardingChecked) return null; 
+  if (user && !isOnboardingChecked) return null; // Or loading spinner
   if (user && !onboardingComplete) return <Navigate to="/onboarding" replace />;
 
   return <Outlet />;

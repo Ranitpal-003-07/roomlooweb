@@ -181,7 +181,7 @@ body {
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
   overflow: auto;
-  height: calc(100vh - 14rem);
+  height: calc(120vh - 14rem);
   position: sticky;
   top: 2rem;
   transition: transform 0.3s ease, opacity 0.3s ease;
