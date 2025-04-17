@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import UpdateCard from "../components/UpdateCard";
 import PostModal from "../components/PostModal";
-import { db, storage } from "../context/AuthContext";
+import { db, storage } from "../firebase";
 import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../styles/UpdatePage.css";

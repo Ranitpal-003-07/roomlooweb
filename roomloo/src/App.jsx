@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./App.css"; // Ensure global styles
+import "./App.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -9,36 +9,39 @@ import Roommate from "./pages/Roommate";
 import Update from "./pages/Update";
 import Login from "./pages/Auth";
 import Profile from "./pages/Profile";
+import Onboarding from "./pages/onboarding";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { useContext } from "react";
-import { AuthContext } from "./context/AuthContext";
+import { useAuth } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 
 function App() {
-  const { user, loading } = useContext(AuthContext);
+  const { loading } = useAuth();
 
   if (loading) return <p>Loading...</p>;
+
   return (
-      <Router>
-        <div className="app-container">
-          <ToastContainer position="top-right" autoClose={3000} />
-          <Navbar />
-          <div className="content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/auth" element={<Login />} />
-              {/* Protected Routes */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/pgs" element={<PGs />} />
-                <Route path="/roommate" element={<Roommate />} />
-                <Route path="/update" element={<Update />} />
-              </Route>
-            </Routes>
-          </div>
-          <Footer />
+    <Router>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <div className="app-container">
+        <Navbar />
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<Login />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/pgs" element={<PGs />} />
+              <Route path="/roommate" element={<Roommate />} />
+              <Route path="/update" element={<Update />} />
+            </Route>
+          </Routes>
         </div>
-      </Router>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
