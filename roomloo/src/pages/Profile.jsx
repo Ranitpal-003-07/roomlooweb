@@ -49,7 +49,11 @@ const Profile = () => {
       instagram: "",
       twitter: "",
       facebook: ""
-    }
+    },
+    smokingHabit: "Non-smoker",
+    alcoholConsumption: "Social drinker",
+    religion: "Prefer not to say",
+    fieldOfStudy: "Computer Science",
   });
 
   // Loading state
@@ -68,6 +72,11 @@ const Profile = () => {
   const [editingHostel, setEditingHostel] = useState(false);
   const [editingBasicInfo, setEditingBasicInfo] = useState(false);
   const [editingCollege, setEditingCollege] = useState(false);
+  const [editingSmoking, setEditingSmoking] = useState(false);
+  const [editingAlcohol, setEditingAlcohol] = useState(false);
+  const [editingReligion, setEditingReligion] = useState(false);
+  const [editingFieldOfStudy, setEditingFieldOfStudy] = useState(false);const [editingSocialLinks, setEditingSocialLinks] = useState(false);
+ 
   
   // Temporary states for editing
   const [tempName, setTempName] = useState(userData.fullName);
@@ -80,6 +89,51 @@ const Profile = () => {
   const [tempLocation, setTempLocation] = useState(userData.hometown);
   const [tempCollege, setTempCollege] = useState(userData.collegeName);
   const [tempHostel, setTempHostel] = useState(userData.currentHostel);
+  const [tempSmoking, setTempSmoking] = useState(userData.smokingHabit);
+  const [tempAlcohol, setTempAlcohol] = useState(userData.alcoholConsumption);
+  const [tempReligion, setTempReligion] = useState(userData.religion);
+  const [tempFieldOfStudy, setTempFieldOfStudy] = useState(userData.fieldOfStudy);
+  const [tempSocialLinks, setTempSocialLinks] = useState({
+    linkedin: userData.socialLinks?.linkedin || "",
+    github: userData.socialLinks?.github || "",
+    instagram: userData.socialLinks?.instagram || "",
+    twitter: userData.socialLinks?.twitter || "",
+    facebook: userData.socialLinks?.facebook || ""
+  });
+
+  // Add this handler function for editing social links
+  const handleSaveSocialLinks = () => {
+    const updatedData = {
+      ...userData,
+      socialLinks: tempSocialLinks
+    };
+    
+    setUserData(updatedData);
+    updateUserProfile({ socialLinks: tempSocialLinks });
+    setEditingSocialLinks(false);
+  };
+
+  
+ 
+  // Add a function to handle social link changes
+  const handleSocialLinkChange = (platform, value) => {
+    setTempSocialLinks({
+      ...tempSocialLinks,
+      [platform]: value
+    });
+  };
+
+  // Add function to open social links in new tab
+  const openSocialLink = (url) => {
+    if (url && url.trim() !== "") {
+      // Add http:// prefix if not present
+      let formattedUrl = url;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        formattedUrl = 'https://' + url;
+      }
+      window.open(formattedUrl, '_blank');
+    }
+  };
   
   // States for new items
   const [newHobby, setNewHobby] = useState('');
@@ -131,6 +185,18 @@ const Profile = () => {
         setTempLocation(data.hometown || '');
         setTempCollege(data.collegeName || '');
         setTempHostel(data.currentHostel || '');
+        setTempSmoking(data.smokingHabit || 'Non-smoker');
+        setTempAlcohol(data.alcoholConsumption || 'Social drinker');
+        setTempReligion(data.religion || 'Prefer not to say');
+        setTempFieldOfStudy(data.fieldOfStudy || 'Computer Science');
+        setTempSocialLinks(data.socialLinks || {
+          linkedin: "",
+          github: "",
+          instagram: "",
+          twitter: "",
+          facebook: ""
+        });
+      
       } else {
         // Create a new user profile if it doesn't exist
         await setDoc(userDocRef, { 
@@ -185,6 +251,51 @@ const Profile = () => {
     updateUserProfile({ age: tempAge, gender: tempGender, hometown: tempLocation });
     setEditingBasicInfo(false);
   };
+  // Add these handler functions for editing operations
+  const handleSaveSmoking = () => {
+    const updatedData = {
+      ...userData,
+      smokingHabit: tempSmoking
+    };
+    
+    setUserData(updatedData);
+    updateUserProfile({ smokingHabit: tempSmoking });
+    setEditingSmoking(false);
+  };
+
+  const handleSaveAlcohol = () => {
+    const updatedData = {
+      ...userData,
+      alcoholConsumption: tempAlcohol
+    };
+    
+    setUserData(updatedData);
+    updateUserProfile({ alcoholConsumption: tempAlcohol });
+    setEditingAlcohol(false);
+  };
+
+  const handleSaveReligion = () => {
+    const updatedData = {
+      ...userData,
+      religion: tempReligion
+    };
+    
+    setUserData(updatedData);
+    updateUserProfile({ religion: tempReligion });
+    setEditingReligion(false);
+  };
+
+  const handleSaveFieldOfStudy = () => {
+    const updatedData = {
+      ...userData,
+      fieldOfStudy: tempFieldOfStudy
+    };
+    
+    setUserData(updatedData);
+    updateUserProfile({ fieldOfStudy: tempFieldOfStudy });
+    setEditingFieldOfStudy(false);
+  };
+
 
   const handleSaveCollege = () => {
     const updatedData = {
@@ -349,25 +460,128 @@ const Profile = () => {
         <div className="pr-photo-wrapper">
           <img src='/assets/bg1.jpg' alt="Profile" className="pr-profile-photo" />
         </div>
+        {/* Replace the existing social icons section in the pr-connect div with this code */}
         <div className="pr-connect">
-          <h4>Connect with me</h4>
-          <div className="pr-social-icons">
-            <button className="pr-icon-btn">
-              <FontAwesomeIcon icon={faLinkedinIn} />
-            </button>
-            <button className="pr-icon-btn">
-              <FontAwesomeIcon icon={faGithub} />
-            </button>
-            <button className="pr-icon-btn">
-              <FontAwesomeIcon icon={faInstagram} />
-            </button>
-            <button className="pr-icon-btn">
-              <FontAwesomeIcon icon={faTwitter} />
-            </button>
-            <button className="pr-icon-btn">
-              <FontAwesomeIcon icon={faGlobe} />
-            </button>
+          <div className="pr-connect-header">
+            <h4>Connect with me</h4>
+            {!editingSocialLinks ? (
+              <button 
+                className="pr-edit-btn" 
+                onClick={() => {
+                  setEditingSocialLinks(true);
+                  setTempSocialLinks({...userData.socialLinks});
+                }}
+              >
+                <FontAwesomeIcon icon={faPen} />
+              </button>
+            ) : null}
           </div>
+          
+          {!editingSocialLinks ? (
+            <div className="pr-social-icons">
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.linkedin ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.linkedin)}
+                disabled={!userData.socialLinks?.linkedin}
+              >
+                <FontAwesomeIcon icon={faLinkedinIn} />
+              </button>
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.github ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.github)}
+                disabled={!userData.socialLinks?.github}
+              >
+                <FontAwesomeIcon icon={faGithub} />
+              </button>
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.instagram ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.instagram)}
+                disabled={!userData.socialLinks?.instagram}
+              >
+                <FontAwesomeIcon icon={faInstagram} />
+              </button>
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.twitter ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.twitter)}
+                disabled={!userData.socialLinks?.twitter}
+              >
+                <FontAwesomeIcon icon={faTwitter} />
+              </button>
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.facebook ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.facebook)}
+                disabled={!userData.socialLinks?.facebook}
+              >
+                <FontAwesomeIcon icon={faGlobe} />
+              </button>
+            </div>
+          ) : (
+            <div className="pr-social-links-form">
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faLinkedinIn} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.linkedin} 
+                    onChange={(e) => handleSocialLinkChange('linkedin', e.target.value)}
+                    placeholder="LinkedIn URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faGithub} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.github} 
+                    onChange={(e) => handleSocialLinkChange('github', e.target.value)}
+                    placeholder="GitHub URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faInstagram} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.instagram} 
+                    onChange={(e) => handleSocialLinkChange('instagram', e.target.value)}
+                    placeholder="Instagram URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faTwitter} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.twitter} 
+                    onChange={(e) => handleSocialLinkChange('twitter', e.target.value)}
+                    placeholder="Twitter URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faGlobe} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.facebook} 
+                    onChange={(e) => handleSocialLinkChange('facebook', e.target.value)}
+                    placeholder="Facebook URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-edit-actions">
+                <button className="pr-save-btn" onClick={handleSaveSocialLinks}>
+                  <FontAwesomeIcon icon={faSave} />
+                </button>
+                <button className="pr-cancel-btn" onClick={() => setEditingSocialLinks(false)}>
+                  <FontAwesomeIcon icon={faTimesCircle} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
   
@@ -609,6 +823,180 @@ const Profile = () => {
           )}
         </div>
       </div>
+
+      {/* Personal Preferences Section */}
+        <div className="pr-personal-preferences">
+          <h3 className="pr-section-title">Personal Preferences</h3>
+          <div className="pr-preferences-grid">
+            {/* Smoking Habits */}
+            <div className="pr-preference-box">
+              <div className="pr-box-header">
+                <h4>Smoking Habits</h4>
+                {!editingSmoking ? (
+                  <FontAwesomeIcon 
+                    icon={faEdit} 
+                    className="pr-edit-icon" 
+                    onClick={() => {
+                      setEditingSmoking(true);
+                      setTempSmoking(userData.smokingHabit);
+                    }}
+                  />
+                ) : null}
+              </div>
+              {!editingSmoking ? (
+                <p className="pr-preference-value">{userData.smokingHabit}</p>
+              ) : (
+                <div className="pr-edit-form">
+                  <select 
+                    value={tempSmoking} 
+                    onChange={(e) => setTempSmoking(e.target.value)}
+                    className="pr-edit-select"
+                  >
+                    <option value="Non-smoker">Non-smoker</option>
+                    <option value="Occasional smoker">Occasional smoker</option>
+                    <option value="Regular smoker">Regular smoker</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                  <div className="pr-edit-actions">
+                    <button className="pr-save-btn" onClick={handleSaveSmoking}>
+                      <FontAwesomeIcon icon={faSave} />
+                    </button>
+                    <button className="pr-cancel-btn" onClick={() => setEditingSmoking(false)}>
+                      <FontAwesomeIcon icon={faTimesCircle} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Alcohol Habits */}
+            <div className="pr-preference-box">
+              <div className="pr-box-header">
+                <h4>Alcohol Habits</h4>
+                {!editingAlcohol ? (
+                  <FontAwesomeIcon 
+                    icon={faEdit} 
+                    className="pr-edit-icon" 
+                    onClick={() => {
+                      setEditingAlcohol(true);
+                      setTempAlcohol(userData.alcoholConsumption);
+                    }}
+                  />
+                ) : null}
+              </div>
+              {!editingAlcohol ? (
+                <p className="pr-preference-value">{userData.alcoholConsumption}</p>
+              ) : (
+                <div className="pr-edit-form">
+                  <select 
+                    value={tempAlcohol} 
+                    onChange={(e) => setTempAlcohol(e.target.value)}
+                    className="pr-edit-select"
+                  >
+                    <option value="Non-drinker">Non-drinker</option>
+                    <option value="Social drinker">Social drinker</option>
+                    <option value="Regular drinker">Regular drinker</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                  <div className="pr-edit-actions">
+                    <button className="pr-save-btn" onClick={handleSaveAlcohol}>
+                      <FontAwesomeIcon icon={faSave} />
+                    </button>
+                    <button className="pr-cancel-btn" onClick={() => setEditingAlcohol(false)}>
+                      <FontAwesomeIcon icon={faTimesCircle} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Religion */}
+            <div className="pr-preference-box">
+              <div className="pr-box-header">
+                <h4>Religion</h4>
+                {!editingReligion ? (
+                  <FontAwesomeIcon 
+                    icon={faEdit} 
+                    className="pr-edit-icon" 
+                    onClick={() => {
+                      setEditingReligion(true);
+                      setTempReligion(userData.religion);
+                    }}
+                  />
+                ) : null}
+              </div>
+              {!editingReligion ? (
+                <p className="pr-preference-value">{userData.religion}</p>
+              ) : (
+                <div className="pr-edit-form">
+                  <select 
+                    value={tempReligion} 
+                    onChange={(e) => setTempReligion(e.target.value)}
+                    className="pr-edit-select"
+                  >
+                    <option value="Christianity">Christianity</option>
+                    <option value="Islam">Islam</option>
+                    <option value="Hinduism">Hinduism</option>
+                    <option value="Buddhism">Buddhism</option>
+                    <option value="Judaism">Judaism</option>
+                    <option value="Sikhism">Sikhism</option>
+                    <option value="Atheist">Atheist</option>
+                    <option value="Agnostic">Agnostic</option>
+                    <option value="Spiritual">Spiritual</option>
+                    <option value="Other">Other</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                  <div className="pr-edit-actions">
+                    <button className="pr-save-btn" onClick={handleSaveReligion}>
+                      <FontAwesomeIcon icon={faSave} />
+                    </button>
+                    <button className="pr-cancel-btn" onClick={() => setEditingReligion(false)}>
+                      <FontAwesomeIcon icon={faTimesCircle} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Field of Study */}
+            <div className="pr-preference-box">
+              <div className="pr-box-header">
+                <h4>Field of Study</h4>
+                {!editingFieldOfStudy ? (
+                  <FontAwesomeIcon 
+                    icon={faEdit} 
+                    className="pr-edit-icon" 
+                    onClick={() => {
+                      setEditingFieldOfStudy(true);
+                      setTempFieldOfStudy(userData.fieldOfStudy);
+                    }}
+                  />
+                ) : null}
+              </div>
+              {!editingFieldOfStudy ? (
+                <p className="pr-preference-value">{userData.fieldOfStudy}</p>
+              ) : (
+                <div className="pr-edit-form">
+                  <input 
+                    type="text" 
+                    value={tempFieldOfStudy} 
+                    onChange={(e) => setTempFieldOfStudy(e.target.value)}
+                    className="pr-edit-input"
+                    placeholder="Field of Study"
+                  />
+                  <div className="pr-edit-actions">
+                    <button className="pr-save-btn" onClick={handleSaveFieldOfStudy}>
+                      <FontAwesomeIcon icon={faSave} />
+                    </button>
+                    <button className="pr-cancel-btn" onClick={() => setEditingFieldOfStudy(false)}>
+                      <FontAwesomeIcon icon={faTimesCircle} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
   
       {/* Content Layout */}
       <div className="pr-content-grid">

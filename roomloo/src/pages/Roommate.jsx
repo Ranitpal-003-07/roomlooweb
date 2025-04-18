@@ -1,133 +1,379 @@
-import React, { useState } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect } from "react";
 import "../styles/RoommateFinder.css";
 import RoommateCard from "../components/RoommateCard";
-import { FaSearch, FaFilter, FaMapMarkerAlt, FaUniversity, FaVenusMars, FaUtensils, FaBookOpen, FaSmoking, FaWineGlass, FaHome, FaPray } from "react-icons/fa";
+import { FaSearch, FaFilter, FaMapMarkerAlt, FaUniversity, FaVenusMars, FaUtensils, FaBookOpen, FaSmoking, FaWineGlass, FaHome, FaPray, FaTimes } from "react-icons/fa";
+import { collection, getDocs, query, where, doc, getDoc } from "firebase/firestore";
+import { db, auth } from "../firebase";
 
 const RoommateFinder = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [roommates, setRoommates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Filter states
+  const [locationFilter, setLocationFilter] = useState("");
+  const [collegeFilter, setCollegeFilter] = useState([]);
+  const [hasPGFilter, setHasPGFilter] = useState(false);
+  const [religionFilter, setReligionFilter] = useState([]);
+  const [genderFilter, setGenderFilter] = useState([]);
+  const [roommatePreferenceFilter, setRoommatePreferenceFilter] = useState([]);
+  const [foodPreferenceFilter, setFoodPreferenceFilter] = useState([]);
+  const [fieldFilter, setFieldFilter] = useState([]);
+  const [smokingFilter, setSmokingFilter] = useState([]);
+  const [alcoholFilter, setAlcoholFilter] = useState([]);
+  
+  // Original unfiltered roommates data
+  const [allRoommates, setAllRoommates] = useState([]);
 
-  const roommates = [
-    {
-      id: 1,
-      name: "Aarav Sharma",
-      age: 22,
-      college: "IIT Delhi",
-      gender: "Male",
-      matchPercentage: 92,
-      image: "https://source.unsplash.com/300x400/?man,student",
-      about: "I'm a final year Computer Science student who loves coding and playing guitar. Looking for a roommate who respects personal space.",
-      preference: "Male roommate who is clean and organized",
-      address: "Hauz Khas, New Delhi",
-      currentHostel: "Nilgiri Hostel",
-      hobbies: ["Guitar", "Coding", "Chess", "Hiking"],
-      interests: ["AI/ML", "Web Development", "Music"],
-      wayToHeart: "Deep conversations about technology and innovation",
-      foodsLove: ["Butter Chicken", "Biryani", "Chocolate"],
-      email: "aarav.sharma@gmail.com",
-      field: "Computer Science",
-    },
-    {
-      id: 2,
-      name: "Meera Kapoor",
-      age: 21,
-      college: "Delhi University",
-      gender: "Female",
-      matchPercentage: 87,
-      image: "https://source.unsplash.com/300x400/?woman,student",
-      about: "I'm a Literature major who loves reading and writing poetry. I'm looking for a female roommate who's quiet and respects study time.",
-      preference: "Female roommate who is a non-smoker",
-      address: "North Campus, Delhi University",
-      currentHostel: "Meghdoot Hostel",
-      hobbies: ["Reading", "Writing", "Photography", "Yoga"],
-      interests: ["Classic Literature", "Film", "Art"],
-      wayToHeart: "Discussing books and poetry",
-      foodsLove: ["Paneer Tikka", "Pasta", "Ice Cream"],
-      email: "meera.kapoor@du.ac.in",
-      field: "English Literature",
-    },
-    {
-      id: 3,
-      name: "Kabir Malhotra",
-      age: 23,
-      college: "NSIT Delhi",
-      gender: "Male",
-      matchPercentage: 95,
-      image: "https://source.unsplash.com/300x400/?youngman,college",
-      about: "Engineering graduate pursuing MBA. I'm sporty, organized and prefer keeping common areas clean.",
-      preference: "Male roommate who is into sports",
-      address: "Dwarka, New Delhi",
-      currentHostel: "Vindhya Hostel",
-      hobbies: ["Cricket", "Football", "Gym", "Swimming"],
-      interests: ["Business", "Sports", "Technology"],
-      wayToHeart: "Playing sports together or watching matches",
-      foodsLove: ["Chicken Tikka", "Noodles", "Protein Shakes"],
-      email: "kabir.malhotra@nsit.ac.in",
-      field: "MBA",
-    },
-    {
-      id: 4,
-      name: "Ananya Singh",
-      age: 20,
-      college: "Lady Shri Ram College",
-      gender: "Female",
-      matchPercentage: 90,
-      image: "https://source.unsplash.com/300x400/?girl,student",
-      about: "Psychology student interested in art and music. I'm looking for someone who appreciates creativity.",
-      preference: "Female roommate who is artsy and creative",
-      address: "South Campus, Delhi University",
-      currentHostel: "Kaveri Hostel",
-      hobbies: ["Painting", "Singing", "Dancing", "Cooking"],
-      interests: ["Psychology", "Music", "Art Therapy"],
-      wayToHeart: "Creating art together or attending music events",
-      foodsLove: ["Dal Makhani", "Momos", "Cheesecake"],
-      email: "ananya.singh@lsr.du.ac.in",
-      field: "Psychology",  
-    },
-    {
-      id: 5,
-      name: "Rohan Verma",
-      age: 22,
-      college: "Jamia Millia Islamia",
-      gender: "Male",
-      matchPercentage: 88,
-      image: "https://source.unsplash.com/300x400/?male,college",
-      about: "Mass Communication student passionate about filmmaking and photography. Looking for a creative environment.",
-      preference: "Anyone who respects my equipment and late-night editing sessions",
-      address: "Okhla, New Delhi",
-      currentHostel: "Ganga Hostel",
-      hobbies: ["Filmmaking", "Photography", "Traveling", "Blogging"],
-      interests: ["Cinema", "Documentaries", "Social Media"],
-      wayToHeart: "Discussing films and sharing creative ideas",
-      foodsLove: ["Kebabs", "Pizza", "Cold Coffee"],
-      email: "rohan.verma@jmi.ac.in",
-      field: "Mass Communication",
-    },
-    {
-      id: 6,
-      name: "Simran Kaur",
-      age: 21,
-      college: "Miranda House",
-      gender: "Female",
-      matchPercentage: 91,
-      image: "https://source.unsplash.com/300x400/?female,college",
-      about: "Economics honors student who loves debating and playing the piano. I'm organized and prefer a clean living space.",
-      preference: "Female roommate who is studious and clean",
-      address: "North Campus, Delhi University",
-      currentHostel: "Yamuna Hostel",
-      hobbies: ["Piano", "Debating", "Running", "Baking"],
-      interests: ["Economics", "Politics", "Classical Music"],
-      wayToHeart: "Intellectual debates and music sessions",
-      foodsLove: ["Rajma Chawal", "Sushi", "Tiramisu"],
-      email: "simran.kaur@mirandahouse.ac.in",
-      field: "Economics",
-    }
+  // Colleges list for checkboxes
+  const colleges = [
+    "IIT Delhi",
+    "Delhi University",
+    "Jamia Millia Islamia",
+    "NSUT",
+    "IIIT Delhi",
+    "DTU",
+    "Ambedkar University",
+    "IP University",
+    "JNU",
+    "AIIMS Delhi",
+    "Hansraj College",
+    "Lady Shri Ram College",
+    "Shri Ram College of Commerce",
+    "St. Stephen's College",
+    "Miranda House",
+    "Lovely Professional University"
   ];
 
-  
+  // Handle window resize for responsiveness
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768 && isFilterVisible) {
+        // Keep filters visible on larger screens
+      } else if (window.innerWidth <= 768) {
+        // Close filters when resizing to mobile if they're open
+        // We keep this behavior optional
+      }
+    };
 
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isFilterVisible]);
+
+  // Close filter overlay when clicking outside on mobile
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (window.innerWidth <= 768 && isFilterVisible) {
+        const filterContainer = document.querySelector('.roommate-right');
+        if (filterContainer && !filterContainer.contains(event.target) && 
+            !event.target.closest('.filters-toggle')) {
+          setIsFilterVisible(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isFilterVisible]);
+
+ // Fetch users from Firebase
+  useEffect(() => {
+    const fetchRoommates = async () => {
+      setLoading(true);
+      try {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          console.error("No user is logged in");
+          setLoading(false);
+          return;
+        }
+
+        const usersRef = collection(db, "users");
+        // Query to get all users except the current one
+        const q = query(usersRef, where("email", "!=", currentUser.email));
+        const querySnapshot = await getDocs(q);
+        
+        const roommateData = [];
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          // Transform Firebase data to match our roommate structure
+          roommateData.push({
+            id: doc.id,
+            name: userData.fullName || "Anonymous",
+            age: userData.age || "20",
+            college: userData.collegeName || "Unknown",
+            gender: userData.gender || "Not specified",
+            matchPercentage: calculateMatchPercentage(userData, currentUser),
+            image: userData.profileImage || "https://source.unsplash.com/300x400/?student",
+            about: userData.about || "No description available",
+            preference: userData.roomPreference || "Not specified",
+            address: userData.currentAddress || "Not specified",
+            currentHostel: userData.currentHostel || "Not specified",
+            hobbies: userData.hobbies || [],
+            interests: userData.interests || [],
+            wayToHeart: userData.heartWays || [],
+            foodsLove: userData.favoriteFoods || [],
+            email: userData.email || "Not available",
+            field: userData.fieldOfStudy || "Not specified",
+            hasPG: false, // This field doesn't seem to exist in your schema
+            religion: userData.religion || "Not specified",
+            foodPreference: userData.foodPreference || "Not specified",
+            smokingHabit: userData.smokingHabit || "Not specified",
+            alcoholPreference: userData.alcoholConsumption || "Not specified",
+            socialLinks: userData.socialLinks || {},
+            hometown: userData.hometown || "Not specified",
+            createdAt: userData.createdAt || null
+          });
+        });
+
+        setAllRoommates(roommateData);
+        setRoommates(roommateData);
+      } catch (error) {
+        console.error("Error fetching roommates:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoommates();
+  }, []);
+
+  // Calculate match percentage function
+  const calculateMatchPercentage = (userData, currentUser) => {
+    let matchScore = 0;
+    let totalFactors = 0;
+    
+    // Get current user data from auth
+    const getCurrentUserData = async () => {
+      const userRef = doc(db, "users", currentUser.uid);
+      const userSnap = await getDoc(userRef);
+      return userSnap.exists() ? userSnap.data() : null;
+    };
+
+    const currentUserData = getCurrentUserData();
+    
+    // Compare fields that contribute to compatibility
+    
+    // Same college bonus
+    if (currentUserData && userData.collegeName === currentUserData.collegeName) {
+      matchScore += 15;
+    }
+    totalFactors += 15;
+    
+    // Gender preference match
+    if (userData.roomPreference === currentUserData?.gender || 
+        userData.roomPreference === "any") {
+      matchScore += 20;
+    }
+    totalFactors += 20;
+    
+    // Same field of study
+    if (currentUserData && userData.fieldOfStudy === currentUserData.fieldOfStudy) {
+      matchScore += 10;
+    }
+    totalFactors += 10;
+    
+    // Smoking habits compatibility
+    if (currentUserData && userData.smokingHabit === currentUserData.smokingHabit) {
+      matchScore += 10;
+    }
+    totalFactors += 10;
+    
+    // Alcohol compatibility
+    if (currentUserData && userData.alcoholConsumption === currentUserData.alcoholConsumption) {
+      matchScore += 10;
+    }
+    totalFactors += 10;
+    
+    // Food preference compatibility
+    if (currentUserData && userData.foodPreference === currentUserData.foodPreference) {
+      matchScore += 5;
+    }
+    totalFactors += 5;
+    
+    // Religion compatibility
+    if (currentUserData && userData.religion === currentUserData.religion) {
+      matchScore += 10;
+    }
+    totalFactors += 10;
+    
+    // Calculate shared hobbies
+    let sharedHobbies = 0;
+    if (currentUserData?.hobbies && userData.hobbies) {
+      userData.hobbies.forEach(hobby => {
+        if (currentUserData.hobbies.includes(hobby)) {
+          sharedHobbies++;
+        }
+      });
+      if (sharedHobbies > 0) {
+        matchScore += Math.min(10, sharedHobbies * 2); // Max 10 points
+      }
+    }
+    totalFactors += 10;
+    
+    // Calculate shared interests
+    let sharedInterests = 0;
+    if (currentUserData?.interests && userData.interests) {
+      userData.interests.forEach(interest => {
+        if (currentUserData.interests.includes(interest)) {
+          sharedInterests++;
+        }
+      });
+      if (sharedInterests > 0) {
+        matchScore += Math.min(10, sharedInterests * 2); // Max 10 points
+      }
+    }
+    totalFactors += 10;
+    
+    // Calculate final percentage
+    const finalPercentage = totalFactors > 0 ? Math.round((matchScore / totalFactors) * 100) : 75;
+    
+    // Ensure we have at least 50% match and max 99%
+    return Math.max(50, Math.min(99, finalPercentage));
+  };
+
+  // Toggle filters visibility
   const toggleFilters = () => {
     setIsFilterVisible(!isFilterVisible);
+  };
+
+  // Close filters (for mobile after applying)
+  const closeFilters = () => {
+    if (window.innerWidth <= 768) {
+      setIsFilterVisible(false);
+    }
+  };
+
+  // Handle checkbox changes for multi-select filters
+  const handleCheckboxChange = (value, currentSelections, setSelectionFunction) => {
+    if (currentSelections.includes(value)) {
+      setSelectionFunction(currentSelections.filter(item => item !== value));
+    } else {
+      setSelectionFunction([...currentSelections, value]);
+    }
+  };
+
+  // Apply all filters
+  useEffect(() => {
+    let filteredResults = [...allRoommates];
+    
+    // Apply search term filter (across name, college, location)
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filteredResults = filteredResults.filter(roommate => 
+        roommate.name.toLowerCase().includes(searchLower) ||
+        roommate.college.toLowerCase().includes(searchLower) ||
+        roommate.address.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Apply location filter
+    if (locationFilter) {
+      filteredResults = filteredResults.filter(roommate =>
+        roommate.address.toLowerCase().includes(locationFilter.toLowerCase())
+      );
+    }
+    
+    // Apply college filter
+    if (collegeFilter.length > 0) {
+      filteredResults = filteredResults.filter(roommate =>
+        collegeFilter.includes(roommate.college)
+      );
+    }
+
+    // Apply PG filter
+    if (hasPGFilter) {
+      filteredResults = filteredResults.filter(roommate => roommate.hasPG);
+    }
+    
+    // Apply religion filter
+    if (religionFilter.length > 0) {
+      filteredResults = filteredResults.filter(roommate =>
+        religionFilter.includes(roommate.religion)
+      );
+    }
+    
+    // Apply gender filter
+    if (genderFilter.length > 0) {
+      filteredResults = filteredResults.filter(roommate =>
+        genderFilter.includes(roommate.gender)
+      );
+    }
+    
+    // Apply roommate preference filter
+    if (roommatePreferenceFilter.length > 0) {
+      filteredResults = filteredResults.filter(roommate => {
+        // Check if preference contains any of the selected filter values
+        return roommatePreferenceFilter.some(pref => 
+          roommate.preference.toLowerCase().includes(pref.toLowerCase())
+        );
+      });
+    }
+    
+    // Apply food preference filter
+    if (foodPreferenceFilter.length > 0) {
+      filteredResults = filteredResults.filter(roommate =>
+        foodPreferenceFilter.includes(roommate.foodPreference)
+      );
+    }
+    
+    // Apply field of study filter
+    if (fieldFilter.length > 0) {
+      filteredResults = filteredResults.filter(roommate =>
+        fieldFilter.includes(roommate.field)
+      );
+    }
+    
+    // Apply smoking habits filter
+    if (smokingFilter.length > 0) {
+      filteredResults = filteredResults.filter(roommate =>
+        smokingFilter.includes(roommate.smokingHabit)
+      );
+    }
+    
+    // Apply alcohol preference filter
+    if (alcoholFilter.length > 0) {
+      filteredResults = filteredResults.filter(roommate =>
+        alcoholFilter.includes(roommate.alcoholPreference)
+      );
+    }
+    
+    setRoommates(filteredResults);
+  }, [
+    searchTerm, 
+    allRoommates, 
+    locationFilter, 
+    collegeFilter, 
+    hasPGFilter, 
+    religionFilter, 
+    genderFilter, 
+    roommatePreferenceFilter, 
+    foodPreferenceFilter, 
+    fieldFilter, 
+    smokingFilter, 
+    alcoholFilter
+  ]);
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchTerm("");
+    setLocationFilter("");
+    setCollegeFilter([]);
+    setHasPGFilter(false);
+    setReligionFilter([]);
+    setGenderFilter([]);
+    setRoommatePreferenceFilter([]);
+    setFoodPreferenceFilter([]);
+    setFieldFilter([]);
+    setSmokingFilter([]);
+    setAlcoholFilter([]);
+  };
+
+  // Apply filters and close on mobile
+  const applyFilters = () => {
+    closeFilters();
   };
 
   return (
@@ -148,6 +394,7 @@ const RoommateFinder = () => {
           <button 
             className={`filters-toggle ${isFilterVisible ? 'active' : ''}`} 
             onClick={toggleFilters}
+            aria-label="Toggle filters"
           >
             <FaFilter />
             <span>Filters</span>
@@ -162,15 +409,20 @@ const RoommateFinder = () => {
             <h2>Matching Roommates</h2>
             <span className="results-count">{roommates.length} results</span>
           </div>
-          <div className="roommate-grid">
-            {roommates.map((roommate) => (
-              <div 
-                key={roommate.id} 
-              >
-                <RoommateCard roommate={roommate} />
-              </div>
-            ))}
-          </div>
+          
+          {loading ? (
+            <div className="loading-container">Loading roommates...</div>
+          ) : roommates.length === 0 ? (
+            <div className="no-results">No matching roommates found. Try adjusting your filters.</div>
+          ) : (
+            <div className="roommate-grid">
+              {roommates.map((roommate) => (
+                <div key={roommate.id}>
+                  <RoommateCard roommate={roommate} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right Side - Filters */}
@@ -178,7 +430,12 @@ const RoommateFinder = () => {
           <div className="roommate-filters">
             <div className="filter-header">
               <h3 className="filter-title">Filter Roommates</h3>
-              <button className="clear-filters">Clear All</button>
+              <div className="filter-actions">
+                <button className="clear-filters" onClick={clearAllFilters}>Clear All</button>
+                <button className="close-filters-mobile" onClick={closeFilters}>
+                  <FaTimes />
+                </button>
+              </div>
             </div>
 
             <div className="filter-group location-filter">
@@ -186,7 +443,13 @@ const RoommateFinder = () => {
                 <FaMapMarkerAlt className="filter-icon" />
                 <h4>Location</h4>
               </div>
-              <input type="text" placeholder="Search locations..." className="filter-search" />
+              <input 
+                type="text" 
+                placeholder="Search locations..." 
+                className="filter-search"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+              />
             </div>
 
             <div className="filter-group college-filter">
@@ -198,27 +461,20 @@ const RoommateFinder = () => {
                 type="text"
                 placeholder="Search colleges..."
                 className="filter-search"
+                onChange={(e) => {
+                  // This could be used to filter the college checkbox list
+                  // For now we'll just keep it as is
+                }}
               />
               <div className="college-checkboxes">
-                {[
-                  "IIT Delhi",
-                  "Delhi University",
-                  "Jamia Millia Islamia",
-                  "NSUT",
-                  "IIIT Delhi",
-                  "DTU",
-                  "Ambedkar University",
-                  "IP University",
-                  "JNU",
-                  "AIIMS Delhi",
-                  "Hansraj College",
-                  "Lady Shri Ram College",
-                  "Shri Ram College of Commerce",
-                  "St. Stephen's College",
-                  "Miranda House"
-                ].map((college, idx) => (
+                {colleges.map((college, idx) => (
                   <label key={idx} className="checkbox-label">
-                    <input type="checkbox" className="styled-checkbox" />
+                    <input 
+                      type="checkbox" 
+                      className="styled-checkbox"
+                      checked={collegeFilter.includes(college)}
+                      onChange={() => handleCheckboxChange(college, collegeFilter, setCollegeFilter)}
+                    />
                     <span className="checkbox-text">{college}</span>
                   </label>
                 ))}
@@ -232,7 +488,12 @@ const RoommateFinder = () => {
                 <h4>Accommodation</h4>
               </div>
               <label className="toggle-label">
-                <input type="checkbox" className="styled-checkbox" />
+                <input 
+                  type="checkbox" 
+                  className="styled-checkbox"
+                  checked={hasPGFilter}
+                  onChange={() => setHasPGFilter(!hasPGFilter)}
+                />
                 <span className="checkbox-text">Has PG Available</span>
               </label>
             </div>
@@ -245,7 +506,12 @@ const RoommateFinder = () => {
               <div className="checkbox-grid">
                 {["Hindu", "Muslim", "Christian", "Others"].map((religion, idx) => (
                   <label key={idx} className="checkbox-label">
-                    <input type="checkbox" className="styled-checkbox" />
+                    <input 
+                      type="checkbox" 
+                      className="styled-checkbox"
+                      checked={religionFilter.includes(religion)}
+                      onChange={() => handleCheckboxChange(religion, religionFilter, setReligionFilter)}
+                    />
                     <span className="checkbox-text">{religion}</span>
                   </label>
                 ))}
@@ -260,7 +526,12 @@ const RoommateFinder = () => {
               <div className="checkbox-grid">
                 {["Male", "Female", "Other"].map((gender, idx) => (
                   <label key={idx} className="checkbox-label">
-                    <input type="checkbox" className="styled-checkbox" />
+                    <input 
+                      type="checkbox" 
+                      className="styled-checkbox"
+                      checked={genderFilter.includes(gender)}
+                      onChange={() => handleCheckboxChange(gender, genderFilter, setGenderFilter)}
+                    />
                     <span className="checkbox-text">{gender}</span>
                   </label>
                 ))}
@@ -275,7 +546,12 @@ const RoommateFinder = () => {
               <div className="checkbox-grid">
                 {["Male", "Female", "Any"].map((pref, idx) => (
                   <label key={idx} className="checkbox-label">
-                    <input type="checkbox" className="styled-checkbox" />
+                    <input 
+                      type="checkbox" 
+                      className="styled-checkbox"
+                      checked={roommatePreferenceFilter.includes(pref)}
+                      onChange={() => handleCheckboxChange(pref, roommatePreferenceFilter, setRoommatePreferenceFilter)}
+                    />
                     <span className="checkbox-text">{pref}</span>
                   </label>
                 ))}
@@ -290,7 +566,12 @@ const RoommateFinder = () => {
               <div className="checkbox-grid">
                 {["Vegetarian", "Non-Vegetarian", "Eggetarian"].map((food, idx) => (
                   <label key={idx} className="checkbox-label">
-                    <input type="checkbox" className="styled-checkbox" />
+                    <input 
+                      type="checkbox" 
+                      className="styled-checkbox"
+                      checked={foodPreferenceFilter.includes(food)}
+                      onChange={() => handleCheckboxChange(food, foodPreferenceFilter, setFoodPreferenceFilter)}
+                    />
                     <span className="checkbox-text">{food}</span>
                   </label>
                 ))}
@@ -305,7 +586,12 @@ const RoommateFinder = () => {
               <div className="checkbox-grid">
                 {["Computer Science", "Engineering", "Arts", "Medical", "Business", "Science"].map((field, idx) => (
                   <label key={idx} className="checkbox-label">
-                    <input type="checkbox" className="styled-checkbox" />
+                    <input 
+                      type="checkbox" 
+                      className="styled-checkbox"
+                      checked={fieldFilter.includes(field)}
+                      onChange={() => handleCheckboxChange(field, fieldFilter, setFieldFilter)}
+                    />
                     <span className="checkbox-text">{field}</span>
                   </label>
                 ))}
@@ -320,7 +606,12 @@ const RoommateFinder = () => {
               <div className="checkbox-grid">
                 {["Smoker", "Non-Smoker"].map((habit, idx) => (
                   <label key={idx} className="checkbox-label">
-                    <input type="checkbox" className="styled-checkbox" />
+                    <input 
+                      type="checkbox" 
+                      className="styled-checkbox"
+                      checked={smokingFilter.includes(habit)}
+                      onChange={() => handleCheckboxChange(habit, smokingFilter, setSmokingFilter)}
+                    />
                     <span className="checkbox-text">{habit}</span>
                   </label>
                 ))}
@@ -335,19 +626,32 @@ const RoommateFinder = () => {
               <div className="checkbox-grid">
                 {["Drinks", "Non-Drinker"].map((alcohol, idx) => (
                   <label key={idx} className="checkbox-label">
-                    <input type="checkbox" className="styled-checkbox" />
+                    <input 
+                      type="checkbox" 
+                      className="styled-checkbox"
+                      checked={alcoholFilter.includes(alcohol)}
+                      onChange={() => handleCheckboxChange(alcohol, alcoholFilter, setAlcoholFilter)}
+                    />
                     <span className="checkbox-text">{alcohol}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <button className="apply-filters-btn">Apply Filters</button>
+            <button 
+              className="apply-filters-btn"
+              onClick={applyFilters}
+            >
+              Apply Filters
+            </button>
           </div>
         </div>
       </div>
 
-      
+      {/* Overlay for mobile when filters are visible */}
+      {isFilterVisible && window.innerWidth <= 768 && (
+        <div className="filter-overlay" onClick={closeFilters}></div>
+      )}
     </div>
   );
 };

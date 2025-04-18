@@ -206,17 +206,7 @@ const Login = () => {
               required
             />
             <a href="#">Forgot Your Password?</a>
-            <div style={{ display: "flex", alignItems: "center", margin: "10px 0" }}>
-              <input
-                type="checkbox"
-                id="pgOwnerSignin"
-                checked={isPgOwner}
-                onChange={(e) => setIsPgOwner(e.target.checked)}
-              />
-              <label htmlFor="pgOwnerSignin" style={{ marginLeft: "8px" }}>
-                PG Owner?
-              </label>
-            </div>
+            
             <button type="submit" className="btn1">
               Sign In
             </button>

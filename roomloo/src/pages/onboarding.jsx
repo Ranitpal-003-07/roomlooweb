@@ -17,7 +17,11 @@ import {
   faArrowRight,
   faPlusCircle,
   faMinusCircle,
-  faGraduationCap
+  faGraduationCap,
+  faBook,
+  faSmokingBan,
+  faWineGlass,
+  faPray
 } from '@fortawesome/free-solid-svg-icons';
 import { 
   faInstagram, 
@@ -34,7 +38,7 @@ const Onboarding = () => {
   const navigate = useNavigate();
   
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 6; // Updated total steps
   
   const [formData, setFormData] = useState({
     fullName: "",
@@ -42,7 +46,7 @@ const Onboarding = () => {
     gender: "",
     hometown: "",
     currentAddress: "",
-    collegeName: "", // Added college name field
+    collegeName: "",
     socialLinks: {
       instagram: "",
       facebook: "",
@@ -50,6 +54,13 @@ const Onboarding = () => {
       twitter: "",
       linkedin: ""
     },
+    // New lifestyle fields
+    foodPreference: "",
+    smokingHabit: "",
+    alcoholConsumption: "",
+    religion: "",
+    fieldOfStudy: "",
+    // Existing fields
     roomPreference: "",
     about: "",
     hobbies: [""],
@@ -332,8 +343,91 @@ const Onboarding = () => {
           </div>
         )}
         
-        {/* Step 3: Roommate Preferences */}
+        {/* Step 3: Lifestyle Preferences - NEW STEP */}
         {currentStep === 3 && (
+          <div className="onboarding-step-container">
+            <h2>Lifestyle Preferences</h2>
+            <p>Help find compatible roommates</p>
+            
+            <div className="onboarding-field">
+              <label>
+                <FontAwesomeIcon icon={faUtensils} /> Food Preference
+              </label>
+              <select
+                name="foodPreference"
+                value={formData.foodPreference}
+                onChange={handleChange}
+              >
+                <option value="">Select Preference</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="non-vegetarian">Non-Vegetarian</option>
+                <option value="eggetarian">Eggetarian</option>
+                <option value="vegan">Vegan</option>
+              </select>
+            </div>
+            
+            <div className="onboarding-field">
+              <label>
+                <FontAwesomeIcon icon={faSmokingBan} /> Smoking Habits
+              </label>
+              <select
+                name="smokingHabit"
+                value={formData.smokingHabit}
+                onChange={handleChange}
+              >
+                <option value="">Select Option</option>
+                <option value="smoker">I smoke</option>
+                <option value="non-smoker">I don't smoke</option>
+                <option value="social-smoker">I smoke occasionally</option>
+              </select>
+            </div>
+            
+            <div className="onboarding-field">
+              <label>
+                <FontAwesomeIcon icon={faWineGlass} /> Alcohol Consumption
+              </label>
+              <select
+                name="alcoholConsumption"
+                value={formData.alcoholConsumption}
+                onChange={handleChange}
+              >
+                <option value="">Select Option</option>
+                <option value="regular">Regular drinker</option>
+                <option value="social">Social drinker</option>
+                <option value="non-drinker">Non-drinker</option>
+              </select>
+            </div>
+            
+            <div className="onboarding-field">
+              <label>
+                <FontAwesomeIcon icon={faPray} /> Religion (Optional)
+              </label>
+              <input
+                type="text"
+                name="religion"
+                value={formData.religion}
+                onChange={handleChange}
+                placeholder="Your religion (if you wish to share)"
+              />
+            </div>
+            
+            <div className="onboarding-field">
+              <label>
+                <FontAwesomeIcon icon={faBook} /> Field of Study
+              </label>
+              <input
+                type="text"
+                name="fieldOfStudy"
+                value={formData.fieldOfStudy}
+                onChange={handleChange}
+                placeholder="Your major or field of study"
+              />
+            </div>
+          </div>
+        )}
+        
+        {/* Step 4: Roommate Preferences (was previously step 3) */}
+        {currentStep === 4 && (
           <div className="onboarding-step-container">
             <h2>Roommate Preferences</h2>
             
@@ -380,8 +474,8 @@ const Onboarding = () => {
           </div>
         )}
         
-        {/* Step 4: Interests and Hobbies */}
-        {currentStep === 4 && (
+        {/* Step 5: Interests and Hobbies (was previously step 4) */}
+        {currentStep === 5 && (
           <div className="onboarding-step-container">
             <h2>Interests & Hobbies</h2>
             
@@ -453,8 +547,8 @@ const Onboarding = () => {
           </div>
         )}
         
-        {/* Step 5: Personal Favorites */}
-        {currentStep === 5 && (
+        {/* Step 6: Personal Favorites (was previously step 5) */}
+        {currentStep === 6 && (
           <div className="onboarding-step-container">
             <h2>Personal Favorites</h2>
             
