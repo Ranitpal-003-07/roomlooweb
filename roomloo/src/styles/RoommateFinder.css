@@ -493,3 +493,18 @@ body {
   }
 }
 
+.close-filters-mobile{
+  display: none;
+  position: absolute;
+}
+
+.close-filters-mobile:hover{
+  cursor: pointer;
+  color: var(--primary);
+  font-size: 1.5rem;
+  top: 1rem;
+  right: 1rem;
+}
+.close-filters-mobile:active{
+  color: var(--primary-hover);
+}
