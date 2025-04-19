@@ -9,15 +9,16 @@ import Update from "./pages/Update";
 import Login from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Onboarding from "./pages/onboarding";
+import Dashboard from "./pages/Dashboard"; // Import the Dashboard page
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 
 function App() {
   const { loading } = useAuth();
-
-  if (loading) return <p>Loading...</p>;
-
+  
+  if (loading) return <div>Loading...</div>;
+  
   return (
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
@@ -28,9 +29,10 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Login />} />
             <Route path="/onboarding" element={<Onboarding />} />
-
+            
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} /> {/* Added Dashboard route */}
               <Route path="/profile" element={<Profile />} />
               <Route path="/pgs" element={<PGs />} />
               <Route path="/roommate" element={<Roommate />} />
