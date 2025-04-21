@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect } from "react";
 import "../styles/PGpage.css";
 import PGCard from "../components/PGCard";
 import PGDetailsModal from "../components/PGDetailsModal";
+import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { db } from "../firebase";
 
 const PGs = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -9,55 +12,128 @@ const PGs = () => {
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [selectedColleges, setSelectedColleges] = useState([]);
   const [selectedPG, setSelectedPG] = useState(null);
-
-  const locations = ["Delhi", "Mumbai", "Bangalore", "Pune"];
-  const colleges = ["IIT Delhi", "IIT Bombay", "IIM Bangalore", "Symbiosis Pune"];
-
-  const pgList = [
-    {
-      id: 1,
-      name: "Sunrise PG",
-      price: "₹7,500",
-      rating: "⭐⭐⭐⭐",
-      location: "Delhi",
-      availableRooms: 3,
-      image: "https://source.unsplash.com/400x300/?hostel,room",
-      rent: "₹7,500",
-      electricityCharge: "₹500",
-      waterBill: "₹200",
-      ac: true,
-      amenities: ["WiFi", "Laundry", "Meals", "Parking"],
-    },
-    {
-      id: 2,
-      name: "Blue Haven PG",
-      price: "₹8,200",
-      rating: "⭐⭐⭐⭐⭐",
-      location: "Mumbai",
-      availableRooms: 2,
-      image: "https://source.unsplash.com/400x300/?apartment,room",
-      rent: "₹8,200",
-      electricityCharge: "₹600",
-      waterBill: "₹250",
-      ac: false,
-      amenities: ["WiFi", "Gym", "CCTV Security", "Parking"],
-    },
-    {
-      id: 3,
-      name: "Green Nest PG",
-      price: "₹6,500",
-      rating: "⭐⭐⭐",
-      location: "Bangalore",
-      availableRooms: 5,
-      image: "https://source.unsplash.com/400x300/?house,room",
-      rent: "₹6,500",
-      electricityCharge: "₹400",
-      waterBill: "₹150",
-      ac: true,
-      amenities: ["WiFi", "AC", "CCTV Security", "Housekeeping"],
-    },
-  ];
+  const [pgList, setPgList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [priceRange, setPriceRange] = useState({ min: 2000, max: 25000 });
+  const [currentPriceRange, setCurrentPriceRange] = useState(25000);
+  const [amenityFilters, setAmenityFilters] = useState({
+    "WiFi": false,
+    "AC": false,
+    "Non-AC": false,
+    "TV": false,
+    "Laundry": false,
+    "Parking": false,
+    "Mess/Food": false,
+    "Gym": false,
+    "Power Backup": false,
+    "24/7 Water": false,
+    "Security": false,
+    "Cleaning Service": false,
+    "Refrigerator": false,
+    "Washing Machine": false,
+    "Swimming Pool": false,
+    "Elevator": false
+  });
   
+  const [locations, setLocations] = useState([]);
+  const [colleges, setColleges] = useState([]);
+
+  // Fetch PG listings from Firestore
+  useEffect(() => {
+    const fetchPGs = async () => {
+      try {
+        setLoading(true);
+        const pgCollectionRef = collection(db, "pgListings");
+        const pgSnapshot = await getDocs(pgCollectionRef);
+        
+        const pgData = pgSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        setPgList(pgData);
+        
+        // Extract unique locations from fetched data
+        const uniqueLocations = [...new Set(pgData.map(pg => pg.location).filter(Boolean))];
+        setLocations(uniqueLocations);
+        
+        // Extract unique colleges from fetched data
+        const uniqueColleges = [...new Set(pgData
+          .map(pg => pg.nearbyCollege)
+          .filter(college => college && college.trim() !== '')
+        )];
+        setColleges(uniqueColleges);
+        
+        // Find min and max price
+        if (pgData.length > 0) {
+          const prices = pgData.map(pg => parseInt(pg.price) || 0);
+          const minPrice = Math.min(...prices);
+          const maxPrice = Math.max(...prices);
+          setPriceRange({ min: minPrice, max: maxPrice });
+          setCurrentPriceRange(maxPrice);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching PG listings:", error);
+        setLoading(false);
+      }
+    };
+    
+    fetchPGs();
+  }, []);
+
+  // Filter PGs based on search term and selected filters
+  const filteredPGs = pgList.filter(pg => {
+    // Filter by search term
+    const matchesSearch = 
+      (pg.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+       pg.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       pg.address?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      searchTerm === "";
+    
+    // Filter by location
+    const matchesLocation = selectedLocations.length === 0 || 
+                          (pg.location && selectedLocations.includes(pg.location));
+    
+    // Filter by nearby college
+    const matchesCollege = selectedColleges.length === 0 || 
+                          (pg.nearbyCollege && selectedColleges.includes(pg.nearbyCollege));
+    
+    // Filter by price
+    const matchesPrice = !pg.price || parseInt(pg.price) <= currentPriceRange;
+    
+    // Filter by room type
+    let matchesRoomType = true;
+    
+    if (roomCount === 1) {
+      matchesRoomType = pg.roomType === 'Single';
+    } else {
+      // Check if it's a sharing room with the correct count
+      if (pg.roomType === 'Sharing') {
+        if (pg.sharingType) {
+          matchesRoomType = 
+            pg.sharingType.startsWith(`${roomCount}`) || 
+            pg.sharingType.includes(`(${roomCount}`) ||
+            pg.sharingType === `${roomCount}`;
+        } else {
+          matchesRoomType = false;
+        }
+      } else {
+        matchesRoomType = false;
+      }
+    }
+    
+    // Filter by amenities
+    const matchesAmenities = Object.keys(amenityFilters).every(amenity => {
+      // Only check amenities that are selected (true)
+      return !amenityFilters[amenity] || 
+             (pg.amenities && Array.isArray(pg.amenities) && pg.amenities.includes(amenity));
+    });
+    
+    return matchesSearch && matchesLocation && matchesCollege && 
+           matchesPrice && matchesRoomType && matchesAmenities;
+  });
 
   const toggleSelection = (value, setFunction, stateArray) => {
     if (stateArray.includes(value)) {
@@ -67,13 +143,34 @@ const PGs = () => {
     }
   };
 
+  const handleAmenityChange = (amenity) => {
+    setAmenityFilters({
+      ...amenityFilters,
+      [amenity]: !amenityFilters[amenity]
+    });
+  };
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSelectedLocations([]);
+    setSelectedColleges([]);
+    setCurrentPriceRange(priceRange.max);
+    setRoomCount(1);
+    // Reset all amenity filters to false
+    const resetAmenities = {};
+    Object.keys(amenityFilters).forEach(key => {
+      resetAmenities[key] = false;
+    });
+    setAmenityFilters(resetAmenities);
+  };
+
   return (
     <div className="pg-container">
       {/* Search Bar */}
       <div className="search-bar-container">
         <input
           type="text"
-          placeholder="Search PGs by location or name..."
+          placeholder="Search PGs by name, location or address..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-bar"
@@ -84,43 +181,70 @@ const PGs = () => {
         {/* Left Filter Section */}
         <aside className="filter-section">
           <h3>Filters</h3>
+          <button 
+            onClick={resetFilters}
+            className="reset-filters-button"
+          >
+            Reset All Filters
+          </button>
 
           {/* Live Map Placeholder */}
           <div className="map-placeholder">📍 Live Map Here</div>
 
           {/* Price Slider */}
           <div className="filter-group">
-            <h4>Price Range</h4>
-            <input type="range" min="2000" max="25000" className="price-slider" />
+            <h4>Price Range: ₹{currentPriceRange}</h4>
+            <input 
+              type="range" 
+              min={priceRange.min} 
+              max={priceRange.max} 
+              value={currentPriceRange}
+              onChange={(e) => setCurrentPriceRange(parseInt(e.target.value))}
+              className="price-slider" 
+            />
+            <div className="price-range-labels">
+              <span>₹{priceRange.min}</span>
+              <span>₹{priceRange.max}</span>
+            </div>
           </div>
 
           {/* Amenities */}
           <div className="filter-group">
             <h4>Amenities</h4>
-            <label><input type="checkbox" /> WiFi</label>
-            <label><input type="checkbox" /> AC</label>
-            <label><input type="checkbox" /> Meals Included</label>
-            <label><input type="checkbox" /> Laundry</label>
+            {Object.entries(amenityFilters).map(([amenity, isChecked]) => (
+              <label key={amenity} className="amenity-checkbox">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => handleAmenityChange(amenity)}
+                />{" "}
+                {amenity === "Mess/Food" ? "Meals Included" : amenity}
+              </label>
+            ))}
           </div>
 
           {/* Number of Rooms - Slider */}
           <div className="filter-group">
-            <h4>No. of Rooms: {roomCount}</h4>
+            <h4>Room Type: {roomCount === 1 ? 'Single' : `${roomCount} Sharing`}</h4>
             <input
               type="range"
               min="1"
-              max="5"
+              max="4"
               value={roomCount}
-              onChange={(e) => setRoomCount(e.target.value)}
+              onChange={(e) => setRoomCount(parseInt(e.target.value))}
               className="room-slider"
             />
+            <div className="room-type-labels">
+              <span>Single</span>
+              <span>4 Sharing</span>
+            </div>
           </div>
 
           {/* Location Filter */}
           <div className="filter-group">
             <h4>Location</h4>
             {locations.map((location) => (
-              <label key={location}>
+              <label key={location} className="location-checkbox">
                 <input
                   type="checkbox"
                   checked={selectedLocations.includes(location)}
@@ -135,7 +259,7 @@ const PGs = () => {
           <div className="filter-group">
             <h4>Nearby College</h4>
             {colleges.map((college) => (
-              <label key={college}>
+              <label key={college} className="college-checkbox">
                 <input
                   type="checkbox"
                   checked={selectedColleges.includes(college)}
@@ -149,15 +273,22 @@ const PGs = () => {
 
         {/* Right PG Listings Section */}
         <section className="pg-listings">
-        {pgList
-          .filter(pg => pg.name.toLowerCase().includes(searchTerm.toLowerCase()) || pg.location.toLowerCase().includes(searchTerm.toLowerCase()))
-          .map((pg) => (
-            <PGCard key={pg.id} pg={pg} onClick={setSelectedPG} />
-          ))}
-      </section>
+          {loading ? (
+            <div className="loading-spinner">Loading PG listings...</div>
+          ) : filteredPGs.length > 0 ? (
+            filteredPGs.map((pg) => (
+              <PGCard key={pg.id} pg={pg} onClick={setSelectedPG} />
+            ))
+          ) : (
+            <div className="no-results">
+              <p>No PG listings match your search criteria.</p>
+              <button onClick={resetFilters}>Reset Filters</button>
+            </div>
+          )}
+        </section>
 
-      {/* PG Details Modal */}
-      <PGDetailsModal pg={selectedPG} onClose={() => setSelectedPG(null)} />
+        {/* PG Details Modal */}
+        {selectedPG && <PGDetailsModal pg={selectedPG} onClose={() => setSelectedPG(null)} />}
       </div>
     </div>
   );

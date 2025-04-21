@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Onboarding from "./pages/onboarding";
 import Dashboard from "./pages/Dashboard"; // Import the Dashboard page
 import ProtectedRoute from "./components/ProtectedRoute";
+import Subscription from "./pages/Subscription";
 import { useAuth } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 
@@ -37,6 +38,7 @@ function App() {
               <Route path="/pgs" element={<PGs />} />
               <Route path="/roommate" element={<Roommate />} />
               <Route path="/update" element={<Update />} />
+              <Route path="/subscription" element={<Subscription />} />
             </Route>
           </Routes>
         </div>
