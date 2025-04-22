@@ -13,8 +13,24 @@ const razorpay = new Razorpay({
   key_secret: "Vtlw7718ht9kwSjUseeLzuaW",
 });
 
+// Handle CORS
+const handleCors = (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+
+  // Preflight request
+  if (req.method === "OPTIONS") {
+    res.status(204).send(""); // No content
+    return true;
+  }
+  return false;
+};
+
 // 📦 Create a Razorpay Order
 exports.createOrder = onRequest(async (req, res) => {
+  if (handleCors(req, res)) return;
+
   if (req.method !== "POST") {
     return res.status(405).send("Method Not Allowed");
   }
@@ -42,8 +58,10 @@ exports.createOrder = onRequest(async (req, res) => {
   }
 });
 
-// ✅ Verify Payment - Using v2 onRequest
+// ✅ Verify Payment
 exports.verifyPayment = onRequest((req, res) => {
+  if (handleCors(req, res)) return;
+
   if (req.method !== "POST") {
     return res.status(405).send("Method Not Allowed");
   }
