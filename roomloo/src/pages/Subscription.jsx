@@ -108,7 +108,16 @@ const Subscription = () => {
 
     fetchSubscriptionStatus();
   }, [currentUser]);
-
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+  
   // Handle Razorpay payment initiation
   const handlePayment = (plan) => {
     setProcessing(true);
@@ -116,30 +125,27 @@ const Subscription = () => {
     // Create a Razorpay order
     const createRazorpayOrder = async () => {
       try {
-        // This would typically be a call to your backend API
-        // that creates a Razorpay order and returns order details
-        
-        /* Example API call structure (you'll need to implement this):
-        const response = await fetch('/api/create-razorpay-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            amount: plan.price * 100, // Razorpay expects amount in paise
-            planId: plan.id,
-            userId: currentUser.uid
-          })
-        });
+        const response = await fetch(
+          "https://us-central1-roomloo-web.cloudfunctions.net/createOrder",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount: plan.price }),
+          }
+        );
+    
+        if (!response.ok) {
+          throw new Error("Failed to create order");
+        }
+    
         const orderData = await response.json();
-        return orderData.id; // Razorpay order ID
-        */
-
-        // For demo purposes, we'll simulate an order ID
-        return `order_${Date.now()}`;
+        return orderData.id; // Return the order ID from Razorpay
       } catch (error) {
         console.error("Error creating Razorpay order:", error);
         throw error;
       }
     };
+    
 
     // Initialize and open Razorpay payment
     const initializeRazorpay = async (orderId) => {
@@ -150,7 +156,7 @@ const Subscription = () => {
       }
 
       const options = {
-        key: "YOUR_RAZORPAY_KEY_ID", // Replace with your actual Razorpay key
+        key: "rzp_test_h5c0P8rE0VByWw", // Replace with your actual Razorpay key
         amount: plan.price * 100, // Amount in paise
         currency: "INR",
         name: "PG Finder",
@@ -195,46 +201,43 @@ const Subscription = () => {
   // Handle successful payment completion
   const handlePaymentSuccess = async (paymentResponse, plan) => {
     try {
-      // Verify payment with your backend
-      /* Example verification API call:
-      const verification = await fetch('/api/verify-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+      const verification = await fetch(" https://us-central1-roomloo-web.cloudfunctions.net/verifyPayment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           razorpay_payment_id: paymentResponse.razorpay_payment_id,
           razorpay_order_id: paymentResponse.razorpay_order_id,
-          razorpay_signature: paymentResponse.razorpay_signature
-        })
+          razorpay_signature: paymentResponse.razorpay_signature,
+        }),
       });
+  
       const verificationData = await verification.json();
-      if (!verificationData.valid) throw new Error('Payment verification failed');
-      */
-      
-      // Calculate expiry date based on plan duration
+      if (!verificationData.valid) throw new Error("Payment verification failed");
+  
+      // Calculate expiry date
       const expiryDate = new Date();
       expiryDate.setMonth(expiryDate.getMonth() + plan.duration);
-      
-      // Update user subscription in Firestore
+  
+      // Save to Firestore
       const userDocRef = doc(db, "users", currentUser.uid);
       await updateDoc(userDocRef, {
         subscription: {
-          status: 'active',
+          status: "active",
           plan: plan.id,
           startDate: serverTimestamp(),
           expiryDate: expiryDate,
           paymentId: paymentResponse.razorpay_payment_id,
-          orderId: paymentResponse.razorpay_order_id
-        }
+          orderId: paymentResponse.razorpay_order_id,
+        },
       });
-      
-      // Update local state
+  
+      // Update state
       setSubscriptionData({
         isSubscribed: true,
         plan: plan.id,
-        expiryDate: expiryDate
+        expiryDate: expiryDate,
       });
-      
-      // Show success message
+  
       alert(`Thank you! Your ${plan.name} subscription has been activated successfully.`);
     } catch (error) {
       console.error("Error processing payment success:", error);
@@ -243,6 +246,7 @@ const Subscription = () => {
       setProcessing(false);
     }
   };
+  
 
   // Render current subscription details
   const renderCurrentSubscription = () => {
@@ -375,8 +379,7 @@ const Subscription = () => {
         </div>
       </div>
       
-      {/* Razorpay Script Loading */}
-      <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+      
     </div>
   );
 };

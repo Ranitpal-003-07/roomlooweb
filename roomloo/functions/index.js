@@ -1,12 +1,16 @@
+/* eslint-disable object-curly-spacing */
+/* eslint-disable indent */
+/* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
-const {onRequest} = require("firebase-functions/v2/https");
+const { onRequest } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const Razorpay = require("razorpay");
+const crypto = require("crypto");
 
-// 🔐 Replace with your real Razorpay Key ID and Secret
+// Razorpay instance
 const razorpay = new Razorpay({
-  key_id: "YOUR_RAZORPAY_KEY_ID",
-  key_secret: "YOUR_RAZORPAY_SECRET",
+  key_id: "rzp_test_h5c0P8rE0VByWw",
+  key_secret: "Vtlw7718ht9kwSjUseeLzuaW",
 });
 
 // 📦 Create a Razorpay Order
@@ -22,7 +26,7 @@ exports.createOrder = onRequest(async (req, res) => {
   }
 
   const options = {
-    amount: amount * 100, // amount in paise (₹500 = 50000)
+    amount: amount * 100, // amount in paise
     currency: "INR",
     receipt: `receipt_order_${Date.now()}`,
     payment_capture: 1,
@@ -35,5 +39,32 @@ exports.createOrder = onRequest(async (req, res) => {
   } catch (err) {
     logger.error("Error creating Razorpay order", err);
     return res.status(500).json({ error: "Razorpay order creation failed" });
+  }
+});
+
+// ✅ Verify Payment - Using v2 onRequest
+exports.verifyPayment = onRequest((req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).send("Method Not Allowed");
+  }
+
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+  } = req.body;
+
+  const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+  const expectedSignature = crypto
+    .createHmac("sha256", razorpay.key_secret)
+    .update(body.toString())
+    .digest("hex");
+
+  const isValid = expectedSignature === razorpay_signature;
+
+  if (isValid) {
+    return res.status(200).json({ valid: true });
+  } else {
+    return res.status(400).json({ valid: false });
   }
 });
