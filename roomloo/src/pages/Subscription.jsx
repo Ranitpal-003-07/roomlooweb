@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -6,7 +7,8 @@ import { FiCheck, FiX, FiCreditCard } from "react-icons/fi";
 import "../styles/Subscription.css";
 
 const Subscription = () => {
-  const { currentUser } = useAuth();
+  const {  user } = useAuth();
+  const currentUser = user;
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [subscriptionData, setSubscriptionData] = useState({
@@ -21,7 +23,7 @@ const Subscription = () => {
     {
       id: "basic",
       name: "Basic",
-      price: 499,
+      price: 4,
       duration: 1, // months
       features: [
         "Post up to 2 PG listings",

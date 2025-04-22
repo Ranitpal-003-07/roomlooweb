@@ -8,7 +8,8 @@ import { db } from "../firebase";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
+  const currentUser = user;
   const [userListings, setUserListings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showPostModal, setShowPostModal] = useState(false);

@@ -5,7 +5,7 @@ import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase"; // Assuming you have firebase config file
 
-const PostModal = ({ isOpen, onClose, onSave, editingListing }) => {
+const PostModal = ({ isOpen, onClose, onSave, editingListing,userId }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -123,6 +123,7 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing }) => {
   };
 
   // Handle form submission
+ // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -136,7 +137,8 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing }) => {
         ...formData,
         images: editingListing ? [...editingListing.images || [], ...imageUrls] : imageUrls,
         createdAt: editingListing ? editingListing.createdAt : new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        ownerId: editingListing ? editingListing.ownerId : userId // Add ownerId to the document
       };
       
       // Remove temporary data
@@ -160,7 +162,6 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing }) => {
       // You might want to show an error message to the user here
     }
   };
-
   // Step navigation
   const nextStep = () => setCurrentStep(currentStep + 1);
   const prevStep = () => setCurrentStep(currentStep - 1);
