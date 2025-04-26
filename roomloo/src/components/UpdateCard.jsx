@@ -27,14 +27,12 @@ const UpdateCard = ({ update }) => {
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          // Check if the user has a profile picture in Firebase Storage
-          if (userData.profilePic) {
-            const imageUrl = await getDownloadURL(ref(storage, userData.profilePic)); // Fetch profile picture URL
+          if (userData.profileImageUrl) {
+            const imageUrl = await getDownloadURL(ref(storage, userData.profileImageUrl)); 
             setUserPic(imageUrl);
           } else {
-            // If no profile picture in Storage, use the Google profile picture
-            if (userRef && userData.photoURL) { // Assuming the email is stored in the update
-              setUserPic(update.photoURL); // Get Google profile picture URL
+            if (userRef && userData.photoURL) { 
+              setUserPic(update.photoURL); 
             }
           }
         }

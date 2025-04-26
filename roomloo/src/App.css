@@ -1,20 +1,34 @@
 /* App.css */
+/* Hide scrollbars for all elements */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
 
-/* Ensure full height for layout */
+*::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+/* Existing styles */
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow: -moz-scrollbars-none; /* Old Firefox */
 }
 
-/* Content pushes footer to the bottom */
 .content {
   flex: 1;
   padding: 20px;
-  margin-top: 60px; /* Adjust to avoid overlap with fixed navbar */
+  margin-top: 60px;
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
-/* Ensure footer sticks at bottom */
+.content::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
 .footer {
   text-align: center;
   padding: 10px;

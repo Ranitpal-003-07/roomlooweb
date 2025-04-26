@@ -87,8 +87,14 @@ const Chat = () => {
   return (
     <div className={`chat-container ${isOpen ? 'open' : ''}`} ref={chatRef}>
       <div className="chat-body">
-        <div className="chat-sidebar">
+      <div className="chat-sidebar">
           <h2>Your Chats</h2>
+
+          {/* Disclaimer message */}
+          <div className="chat-disclaimer">
+            ⚠️ You can send a maximum of <strong>15 messages</strong> per chat. Use your messages wisely!
+          </div>
+
           {loading ? (
             <p>Loading chats...</p>
           ) : chatList.length === 0 ? (
@@ -105,6 +111,7 @@ const Chat = () => {
             ))
           )}
         </div>
+
       </div>
 
       <button className="chat-toggle" onClick={() => setIsOpen(!isOpen)}>

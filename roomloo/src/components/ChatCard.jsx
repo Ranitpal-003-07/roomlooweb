@@ -160,6 +160,9 @@ const ChatCard = ({ chat, currentUser, onSelectChat, selectedChatId }) => {
             </div>
           ))
         )}
+        {messageLimitReached && (
+        <div className="limit-warning">Message limit reached (15 messages).</div>
+      )}
       </div>
 
       <form className="message-form" onSubmit={handleSendMessage}>
@@ -175,10 +178,6 @@ const ChatCard = ({ chat, currentUser, onSelectChat, selectedChatId }) => {
           Send
         </button>
       </form>
-
-      {messageLimitReached && (
-        <div className="limit-warning">Message limit reached (15 messages).</div>
-      )}
     </div>
   );
 };
