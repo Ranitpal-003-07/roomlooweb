@@ -1,136 +1,131 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faCommentDots, faShareAlt } from "@fortawesome/free-solid-svg-icons";
-import { faHeart as faRegularHeart } from "@fortawesome/free-regular-svg-icons"; // Regular heart icon
-import { storage, db } from "../firebase"; // Firebase imports
+import { faHeart as faRegularHeart } from "@fortawesome/free-regular-svg-icons";
+import { storage, db } from "../firebase";
 import { ref, getDownloadURL } from "firebase/storage";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import "../styles/UpdateCard.css";
 
 const UpdateCard = ({ update }) => {
   const [liked, setLiked] = useState(false);
-  const [likes, setLikes] = useState(update.likes);
-  const [comments, setComments] = useState(update.comments);
-  const [shares, setShares] = useState(update.shares);
+  const [likes, setLikes] = useState(update?.likes || 0);
+  const [commentsCount, setCommentsCount] = useState(update?.comments?.length || 0);
+  const [shares, setShares] = useState(update?.shares || 0);
   const [newComment, setNewComment] = useState("");
-  const [commentList, setCommentList] = useState([]);
+  const [commentList, setCommentList] = useState(update?.comments || []);
   const [showComments, setShowComments] = useState(false);
   const [showShareOptions, setShowShareOptions] = useState(false);
-  const [userPic, setUserPic] = useState(""); // State to hold the user's profile picture URL
+  const [userPic, setUserPic] = useState("");
 
   useEffect(() => {
     const fetchUserPic = async () => {
       try {
-        const userRef = doc(db, "users", update.userId); // Assuming userId is stored in the update
+        if (!update?.userId) return;
+        
+        const userRef = doc(db, "users", update.userId);
         const userDoc = await getDoc(userRef);
+        
         if (userDoc.exists()) {
           const userData = userDoc.data();
           if (userData.profileImageUrl) {
-            const imageUrl = await getDownloadURL(ref(storage, userData.profileImageUrl)); 
+            const imageUrl = userData.profileImageUrl;
             setUserPic(imageUrl);
-          } else {
-            if (userRef && userData.photoURL) { 
-              setUserPic(update.photoURL); 
-            }
+          } else if (userData.photoURL) {
+            setUserPic(userData.photoURL);
           }
         }
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching user profile:", error);
       }
     };
 
-    fetchUserPic(); // Call the function to fetch user profile picture
-  }, [update.userId, update.photoURL]); // Dependency on userId and photoURL to fetch the correct profile picture
+    fetchUserPic();
+  }, [update?.userId]);
 
   const handleLike = async () => {
-    const newLikeState = !liked;
-    setLiked(newLikeState);
-    const updatedLikes = newLikeState ? likes + 1 : likes - 1;
-    setLikes(updatedLikes);
-
-    // Update the Firestore document with the new likes count
     try {
-      const postRef = doc(db, "posts", update.id); // Reference to the post document
-      await updateDoc(postRef, {
-        likes: updatedLikes,
-      });
+      const newLikeState = !liked;
+      setLiked(newLikeState);
+      const updatedLikes = newLikeState ? likes + 1 : likes - 1;
+      setLikes(updatedLikes);
+
+      if (update?.id) {
+        const postRef = doc(db, "posts", update.id);
+        await updateDoc(postRef, { likes: updatedLikes });
+      }
     } catch (error) {
-      console.error("Error updating likes in Firestore:", error);
+      console.error("Error updating likes:", error);
+      setLiked(!liked); // Revert state on error
     }
   };
 
   const handleComment = async () => {
-    if (newComment.trim()) {
-      const updatedCommentList = [...commentList, newComment];
-      setCommentList(updatedCommentList);
-      setNewComment("");
-      const updatedComments = comments + 1;
-      setComments(updatedComments);
+    try {
+      if (newComment.trim() && update?.id) {
+        const updatedCommentList = [...commentList, newComment];
+        const updatedCount = updatedCommentList.length;
+        
+        setCommentList(updatedCommentList);
+        setCommentsCount(updatedCount);
+        setNewComment("");
 
-      // Update the Firestore document with the new comments count and comment list
-      try {
-        const postRef = doc(db, "posts", update.id); // Reference to the post document
+        const postRef = doc(db, "posts", update.id);
         await updateDoc(postRef, {
           comments: updatedCommentList,
-          commentsCount: updatedComments,
+          commentsCount: updatedCount,
         });
-      } catch (error) {
-        console.error("Error updating comments in Firestore:", error);
       }
+    } catch (error) {
+      console.error("Error adding comment:", error);
     }
   };
 
   const handleShare = async () => {
-    const updatedShares = shares + 1;
-    setShares(updatedShares);
-
-    // Update the Firestore document with the new shares count
     try {
-      const postRef = doc(db, "posts", update.id); // Reference to the post document
-      await updateDoc(postRef, {
-        shares: updatedShares,
-      });
+      if (update?.id) {
+        const updatedShares = shares + 1;
+        setShares(updatedShares);
+        const postRef = doc(db, "posts", update.id);
+        await updateDoc(postRef, { shares: updatedShares });
+      }
     } catch (error) {
-      console.error("Error updating shares in Firestore:", error);
+      console.error("Error updating shares:", error);
     }
-  };
-
-  const toggleCommentSection = () => {
-    setShowComments(!showComments);
-  };
-
-  const toggleShareOptions = () => {
-    setShowShareOptions(!showShareOptions);
   };
 
   return (
     <div className="update-card">
       <div className="update-header">
-        {/* Show the user's profile picture or a default image */}
         <img 
           src={userPic || "/assets/usr1.jpg"} 
           alt="User" 
           className="user-avatar" 
         />
-        <h3 className="username">{update.user}</h3>
+        <h3 className="username">{update?.user || "Unknown User"}</h3>
       </div>
-      <p className="update-content">{update.content}</p>
-      {update.image && <img src={update.image} alt="update" className="update-image" />}
+      <p className="update-content">{update?.content}</p>
+      {update?.image && <img src={update.image} alt="update" className="update-image" />}
 
       <div className="actions">
         <button className={`like-btn ${liked ? "liked" : ""}`} onClick={handleLike}>
-          <FontAwesomeIcon icon={liked ? faHeart : faRegularHeart} className="icon" color={liked ? "red" : "white"} />
+          <FontAwesomeIcon 
+            icon={liked ? faHeart : faRegularHeart} 
+            className="icon" 
+            color={liked ? "red" : "white"} 
+          />
           {likes}
         </button>
 
-        <button className="comment-btn" onClick={toggleCommentSection}>
-          <FontAwesomeIcon icon={faCommentDots} className="icon" color="#00bfff" /> {comments}
+        <button className="comment-btn" onClick={() => setShowComments(!showComments)}>
+          <FontAwesomeIcon icon={faCommentDots} className="icon" color="#00bfff" /> 
+          {commentsCount}
         </button>
 
-        <button className="share-btn" onClick={toggleShareOptions}>
-          <FontAwesomeIcon icon={faShareAlt} className="icon" color="#2ecc71" /> {shares}
+        <button className="share-btn" onClick={() => setShowShareOptions(!showShareOptions)}>
+          <FontAwesomeIcon icon={faShareAlt} className="icon" color="#2ecc71" /> 
+          {shares}
         </button>
       </div>
 

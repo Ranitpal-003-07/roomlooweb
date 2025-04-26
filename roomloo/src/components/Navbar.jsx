@@ -23,8 +23,7 @@ function Navbar() {
     }
   };  // Check if user is a PG owner based on the isPgOwner property
   const isPgOwner = user?.isPgOwner === true;
-  console.log("User:", user); // Debugging line to check user object
-  console.log("isPgOwner:", isPgOwner); // Debugging line to check isPg
+  
   
   return (
     <nav className="navbar">

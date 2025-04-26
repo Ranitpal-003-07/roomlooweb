@@ -6,49 +6,70 @@ import { db, storage } from "../firebase";
 import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../styles/UpdatePage.css";
-import { reload } from "firebase/auth";
 
 const UpdatePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [posts, setPosts] = useState([]);
   const [filterActive, setFilterActive] = useState(false);
-   
-  // Fetch posts from Firestore
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch posts from Firestore with error handling
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchPosts = async () => {
-      const postsSnapshot = await getDocs(collection(db, "posts"));
-      const postsList = postsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      if (postsList.length === 0) {
-        // Default posts if no posts are available
-        setPosts([
-          {
-            id: 1,
-            user: "Roomloo Admin",
-            content: "Welcome to Roomloo! Find PGs and Roommates easily. Stay updated with our latest features!",
-            image: "/assets/bg2.jpg",
-            likes: 0,
-            comments: 0,
-            shares: 0,
-          },
-          {
-            id: 2,
-            user: "Roomloo Admin",
-            content: "We have improved our search functionality for PGs. Try it out!",
-            image: "/assets/bg1.jpg",
-            likes: 0,
-            comments: 0,
-            shares: 0,
-          },
-        ]);
-      } else {
-        setPosts(postsList);
+      try {
+        const postsSnapshot = await getDocs(collection(db, "posts"));
+        if (!isMounted) return;
+
+        const postsList = postsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        
+        if (postsList.length === 0 && isMounted) {
+          setPosts([
+            {
+              id: "default1",
+              user: "Roomloo Admin",
+              content: "Welcome to Roomloo! Find PGs and Roommates easily. Stay updated with our latest features!",
+              image: "/assets/bg2.jpg",
+              likes: 0,
+              comments: [],
+              shares: 0,
+              timestamp: serverTimestamp(),
+            },
+            {
+              id: "default2",
+              user: "Roomloo Admin",
+              content: "We have improved our search functionality for PGs. Try it out!",
+              image: "/assets/bg1.jpg",
+              likes: 0,
+              comments: [],
+              shares: 0,
+              timestamp: serverTimestamp(),
+            },
+          ]);
+        } else if (isMounted) {
+          setPosts(postsList);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err.message);
+          console.error("Error fetching posts:", err);
+        }
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
+
     fetchPosts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSearchFocus = () => {
@@ -60,6 +81,9 @@ const UpdatePage = () => {
       setFilterActive(false);
     }
   };
+
+  if (loading) return <div className="loading">Loading updates...</div>;
+  if (error) return <div className="error">Error: {error}</div>;
 
   return (
     <div className="update-container">
@@ -111,6 +135,7 @@ const UpdatePage = () => {
       {isModalOpen && (
         <PostModal
           onClose={() => setIsModalOpen(false)}
+          onSave={() => window.location.reload()} // Refresh after new post
         />
       )}
     </div>
