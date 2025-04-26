@@ -13,6 +13,75 @@
     backdrop-filter: blur(5px);
   }
   
+  /* Message Icon */
+.rm-message-icon {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  z-index: 2;
+}
+
+.rm-message-icon:hover {
+  background: #0056b3;
+  transform: scale(1.1);
+}
+
+/* Message Section */
+.rm-message-section {
+  position: relative;
+  background: #f8f9fa;
+  padding: 15px;
+  margin: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  z-index: 1;
+}
+
+.rm-message-section h4 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.rm-message-section textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.rm-send-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.rm-send-button:hover {
+  background: #0056b3;
+}
+
+.rm-send-button svg {
+  font-size: 0.9em;
+}
   .rm-modal-content {
     width: 85%;
     max-width: 900px;

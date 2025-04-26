@@ -11,7 +11,8 @@ import {
   faTimes,
   faGlobe,
   faSave,
-  faTimesCircle
+  faTimesCircle,
+  faCamera
 } from '@fortawesome/free-solid-svg-icons';
 import { 
   faLinkedinIn, 
@@ -22,11 +23,19 @@ import {
 import '../styles/Profile.css';
 
 // Import your existing Firebase config
-import { auth, db } from '../firebase';
+import { auth, db, storage } from '../firebase';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const Profile = () => {
+  // Add profile image state
+  const [profileImage, setProfileImage] = useState(null);
+  const [coverImage, setCoverImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
+  const [coverImageUrl, setCoverImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+
   // User profile data state with default values aligned with Firestore structure
   const [userData, setUserData] = useState({
     fullName: "John Doe",
@@ -54,6 +63,8 @@ const Profile = () => {
     alcoholConsumption: "Social drinker",
     religion: "Prefer not to say",
     fieldOfStudy: "Computer Science",
+    profileImageUrl: "", // Add a field for profile image URL
+    coverImageUrl: "", // Add a field for cover image URL
   });
 
   // Loading state
@@ -75,9 +86,9 @@ const Profile = () => {
   const [editingSmoking, setEditingSmoking] = useState(false);
   const [editingAlcohol, setEditingAlcohol] = useState(false);
   const [editingReligion, setEditingReligion] = useState(false);
-  const [editingFieldOfStudy, setEditingFieldOfStudy] = useState(false);const [editingSocialLinks, setEditingSocialLinks] = useState(false);
+  const [editingFieldOfStudy, setEditingFieldOfStudy] = useState(false);
+  const [editingSocialLinks, setEditingSocialLinks] = useState(false);
  
-  
   // Temporary states for editing
   const [tempName, setTempName] = useState(userData.fullName);
   const [tempPronouns, setTempPronouns] = useState(userData.pronouns);
@@ -101,6 +112,75 @@ const Profile = () => {
     facebook: userData.socialLinks?.facebook || ""
   });
 
+  // Profile image upload handling
+  const handleProfileImageChange = (e) => {
+    if (e.target.files[0]) {
+      setProfileImage(e.target.files[0]);
+      handleImageUpload(e.target.files[0], 'profile');
+    }
+  };
+
+  // Cover image upload handling
+  const handleCoverImageChange = (e) => {
+    if (e.target.files[0]) {
+      setCoverImage(e.target.files[0]);
+      handleImageUpload(e.target.files[0], 'cover');
+    }
+  };
+
+  const handleImageUpload = async (image, type) => {
+    if (image && userId) {
+      setUploading(true);
+      try {
+        // Create a reference to the storage location
+        const storageRef = ref(storage, `${type}Images/${userId}`);
+        
+        // Upload the file
+        await uploadBytes(storageRef, image);
+        
+        // Get the download URL
+        const url = await getDownloadURL(storageRef);
+        
+        // Update user profile with new image URL
+        if (type === 'profile') {
+          setImageUrl(url);
+          
+          // Update Firestore with the new image URL
+          const updatedData = {
+            ...userData,
+            profileImageUrl: url
+          };
+          
+          setUserData(updatedData);
+          await updateUserProfile({ profileImageUrl: url });
+        } else if (type === 'cover') {
+          setCoverImageUrl(url);
+          
+          // Update Firestore with the new cover image URL
+          const updatedData = {
+            ...userData,
+            coverImageUrl: url
+          };
+          
+          setUserData(updatedData);
+          await updateUserProfile({ coverImageUrl: url });
+        }
+        
+        alert(`${type.charAt(0).toUpperCase() + type.slice(1)} image updated successfully!`);
+      } catch (error) {
+        console.error(`Error uploading ${type} image:`, error);
+        alert(`Failed to upload ${type} image. Please try again.`);
+      } finally {
+        setUploading(false);
+        if (type === 'profile') {
+          setProfileImage(null);
+        } else {
+          setCoverImage(null);
+        }
+      }
+    }
+  };
+
   // Add this handler function for editing social links
   const handleSaveSocialLinks = () => {
     const updatedData = {
@@ -113,8 +193,6 @@ const Profile = () => {
     setEditingSocialLinks(false);
   };
 
-  
- 
   // Add a function to handle social link changes
   const handleSocialLinkChange = (platform, value) => {
     setTempSocialLinks({
@@ -173,6 +251,42 @@ const Profile = () => {
         const data = userDoc.data();
         setUserData(data);
         setActiveStatus(data.status || 'Needs Roommate');
+        
+        // Set profile image URL if exists
+        if (data.profileImageUrl) {
+          setImageUrl(data.profileImageUrl);
+        } else {
+          // Try to fetch profile image if it exists in storage but not in profile
+          try {
+            const storageRef = ref(storage, `profileImages/${uid}`);
+            const url = await getDownloadURL(storageRef);
+            setImageUrl(url);
+            
+            // Update profile with the image URL
+            await updateDoc(userDocRef, { profileImageUrl: url });
+          } catch (err) {
+            // No image exists yet, which is fine
+            console.log("No profile image found");
+          }
+        }
+        
+        // Set cover image URL if exists
+        if (data.coverImageUrl) {
+          setCoverImageUrl(data.coverImageUrl);
+        } else {
+          // Try to fetch cover image if it exists in storage but not in profile
+          try {
+            const storageRef = ref(storage, `coverImages/${uid}`);
+            const url = await getDownloadURL(storageRef);
+            setCoverImageUrl(url);
+            
+            // Update profile with the cover image URL
+            await updateDoc(userDocRef, { coverImageUrl: url });
+          } catch (err) {
+            // No cover image exists yet, which is fine
+            console.log("No cover image found");
+          }
+        }
         
         // Update all temp states with fetched data
         setTempName(data.fullName || '');
@@ -251,6 +365,7 @@ const Profile = () => {
     updateUserProfile({ age: tempAge, gender: tempGender, hometown: tempLocation });
     setEditingBasicInfo(false);
   };
+
   // Add these handler functions for editing operations
   const handleSaveSmoking = () => {
     const updatedData = {
@@ -295,7 +410,6 @@ const Profile = () => {
     updateUserProfile({ fieldOfStudy: tempFieldOfStudy });
     setEditingFieldOfStudy(false);
   };
-
 
   const handleSaveCollege = () => {
     const updatedData = {
@@ -456,10 +570,53 @@ const Profile = () => {
     <div className="pr-container">
       {/* Header Section */}
       <div className="pr-header">
-        <img src="/assets/bg2.jpg" alt="Cover" className="pr-cover-photo" />
+        {coverImageUrl ? (
+          <img src={coverImageUrl} alt="Cover" className="pr-cover-photo" />
+        ) : (
+          <div className="pr-cover-photo-placeholder"></div>
+        )}
+        
         <div className="pr-photo-wrapper">
-          <img src='/assets/bg1.jpg' alt="Profile" className="pr-profile-photo" />
+          {imageUrl ? (
+            <img src={imageUrl} alt="Profile" className="pr-profile-photo" />
+          ) : (
+            <div className="pr-profile-photo-placeholder">
+              {userData.fullName ? userData.fullName.charAt(0).toUpperCase() : 'U'}
+            </div>
+          )}
+          
+          {/* Profile Image Upload Button */}
+          <label htmlFor="profile-image-upload" className="pr-image-upload-btn">
+            <FontAwesomeIcon icon={faCamera} />
+          </label>
+          <input 
+            type="file" 
+            id="profile-image-upload" 
+            accept="image/*" 
+            onChange={handleProfileImageChange} 
+            style={{ display: 'none' }} 
+          />
         </div>
+        
+        {/* Cover Image Upload Button */}
+        <label htmlFor="cover-image-upload" className="pr-cover-upload-btn">
+          <FontAwesomeIcon icon={faCamera} />
+          <span>Update Cover</span>
+        </label>
+        <input 
+          type="file" 
+          id="cover-image-upload" 
+          accept="image/*" 
+          onChange={handleCoverImageChange} 
+          style={{ display: 'none' }} 
+        />
+  
+  {/* Upload Progress Indicator (shows only during upload) */}
+  {uploading && (
+    <div className="pr-upload-progress">
+      <div className="pr-upload-progress-inner"></div>
+    </div>
+  )}
         {/* Replace the existing social icons section in the pr-connect div with this code */}
         <div className="pr-connect">
           <div className="pr-connect-header">

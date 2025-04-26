@@ -63,6 +63,13 @@
   object-fit: cover;
 }
 
+.pr-cover-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+  border-radius: var(--pr-radius-lg);
+}
+
 /* Gradient overlay on cover photo */
 .pr-header::after {
   content: '';
@@ -71,13 +78,15 @@
   left: 0;
   width: 100%;
   height: 100%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
   z-index: 1;
+  border-radius: var(--pr-radius-lg);
 }
 
 .pr-photo-wrapper {
   position: absolute;
-  bottom:-70px;
-  left: 10px;
+  bottom: -70px;
+  left: 40px;
   width: 200px;
   height: 200px;
   border-radius: 50%;
@@ -116,6 +125,116 @@
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}
+
+.pr-profile-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4.5rem;
+  font-weight: bold;
+  color: #777;
+  background: #f5f5f5;
+  border-radius: 50%;
+}
+
+/* Upload Buttons */
+.pr-image-upload-btn {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background-color: var(--pr-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: var(--pr-transition);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+}
+
+.pr-photo-wrapper:hover .pr-image-upload-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pr-cover-upload-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: var(--pr-radius);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: var(--pr-transition);
+  z-index: 100;
+}
+
+.pr-header:hover .pr-cover-upload-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pr-cover-upload-btn:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Upload Progress Indicator */
+.pr-upload-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.3);
+  z-index: 100;
+}
+
+.pr-upload-progress-inner {
+  height: 100%;
+  width: 0;
+  background-color: var(--pr-primary);
+  animation: progressBar 2s ease-in-out infinite;
+}
+
+@keyframes progressBar {
+  0% { width: 0%; }
+  50% { width: 70%; }
+  100% { width: 100%; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pr-header {
+    height: 200px;
+    margin-bottom: 70px;
+  }
+  
+  .pr-photo-wrapper {
+    width: 140px;
+    height: 140px;
+    bottom: -50px;
+    left: 20px;
+  }
+  
+  .pr-profile-photo-placeholder {
+    font-size: 3rem;
+  }
 }
 
 /* Social Connect Section */

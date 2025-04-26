@@ -1,9 +1,93 @@
-import React, { useEffect } from "react";
-import { FaHeart, FaUtensils, FaHome, FaUser, FaSchool, FaMapMarkerAlt, FaInfo, FaUserFriends, FaGuitar } from "react-icons/fa";
+/* eslint-disable no-unused-vars */
+import React, { useEffect,useState } from "react";
+import { 
+  FaHeart, FaUtensils, FaHome, FaUser, FaSchool, 
+  FaMapMarkerAlt, FaInfo, FaUserFriends, FaGuitar, 
+  FaCommentDots, FaPaperPlane 
+} from "react-icons/fa";
 import "../styles/RoommateModal.css";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "firebase/firestore";
+
+import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
+import { db } from "../firebase"; 
+
 
 const RoommateDetailsModal = ({ roommate, onClose }) => {
+  const [isMessageOpen, setIsMessageOpen] = useState(false);
+  const [message, setMessage] = useState("");
   const safeGet = (value) => (value ? value : "N/A");
+
+ 
+  
+  // Inside the component
+  const { user: currentUser } = useAuth();
+  
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!message.trim() || !currentUser) return;
+  
+    try {
+      const senderUid = currentUser.uid;
+      const recipientUid = roommate.id;
+  
+      if (!senderUid || !recipientUid) {
+        toast.error("Missing user information");
+        return;
+      }
+  
+      const sortedUids = [senderUid, recipientUid].sort();
+      const chatId = `${sortedUids[0]}_${sortedUids[1]}`;
+      const chatRef = doc(db, "chats", chatId);
+  
+      const chatDocSnap = await getDoc(chatRef);
+  
+      const newMessage = {
+        text: message.trim(),
+        timestamp: new Date(), // Using client time to avoid serverTimestamp issues
+      };
+  
+      if (!chatDocSnap.exists()) {
+        // Create the chat document with initial structure
+        const isUser1 = senderUid === sortedUids[0];
+        await setDoc(chatRef, {
+          user1: sortedUids[0],
+          user2: sortedUids[1],
+          chatUser1: isUser1 ? [newMessage] : [],
+          chatUser2: isUser1 ? [] : [newMessage],
+          participants: [sortedUids[0], sortedUids[1]],
+          lastUpdated: new Date(),
+        });
+      } else {
+        // Update the existing array
+        const chatData = chatDocSnap.data();
+        const isUser1 = senderUid === sortedUids[0];
+        const updatedMessages = isUser1
+          ? [...(chatData.chatUser1 || []), newMessage]
+          : [...(chatData.chatUser2 || []), newMessage];
+  
+        await setDoc(chatRef, {
+          ...chatData,
+          [isUser1 ? "chatUser1" : "chatUser2"]: updatedMessages,
+          lastUpdated: new Date(),
+        });
+      }
+  
+      setMessage("");
+      setIsMessageOpen(false);
+      toast.success("Message sent!");
+    } catch (error) {
+      console.error("Message send error:", error);
+      toast.error("Failed to send message");
+    }
+  };
   
   // Close modal when clicking outside
   const handleOverlayClick = (e) => {
@@ -22,6 +106,34 @@ const RoommateDetailsModal = ({ roommate, onClose }) => {
   return (
     <div className="rm-modal-overlay" onClick={handleOverlayClick}>
       <div className="rm-modal-content">
+        {/* Add message icon in header */}
+        <button 
+          className="rm-message-icon"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMessageOpen(!isMessageOpen);
+          }}
+        >
+          <FaCommentDots />
+        </button>
+
+        {/* Message composition section */}
+        {isMessageOpen && (
+          <div className="rm-message-section" onClick={(e) => e.stopPropagation()}>
+            <h4>Message {roommate.name?.split(" ")[0] || "them"}</h4>
+            <form onSubmit={handleSendMessage}>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Write your message..."
+                rows="3"
+              />
+              <button type="submit" className="rm-send-button">
+                <FaPaperPlane /> Send
+              </button>
+            </form>
+          </div>
+        )}
         {/* Header with profile image and basic info */}
         <div className="rm-profile-header">
           <div className="rm-profile-image-container">

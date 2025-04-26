@@ -39,6 +39,8 @@ const Onboarding = () => {
   
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6; // Updated total steps
+
+ 
   
   const [formData, setFormData] = useState({
     fullName: "",
@@ -47,6 +49,7 @@ const Onboarding = () => {
     hometown: "",
     currentAddress: "",
     collegeName: "",
+    profileImageUrl: user?.photoURL || "", // Set default from Google account
     socialLinks: {
       instagram: "",
       facebook: "",

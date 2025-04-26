@@ -9,17 +9,18 @@ import Update from "./pages/Update";
 import Login from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Onboarding from "./pages/onboarding";
-import Dashboard from "./pages/Dashboard"; // Import the Dashboard page
+import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Subscription from "./pages/Subscription";
 import { useAuth } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
+import Chat from './pages/Chat';
 
 function App() {
-  const { loading } = useAuth();
-  
+  const { loading, currentUser } = useAuth();
+
   if (loading) return <div>Loading...</div>;
-  
+
   return (
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
@@ -30,10 +31,10 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Login />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            
+
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} /> {/* Added Dashboard route */}
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/pgs" element={<PGs />} />
               <Route path="/roommate" element={<Roommate />} />
@@ -41,6 +42,9 @@ function App() {
               <Route path="/subscription" element={<Subscription />} />
             </Route>
           </Routes>
+
+          {/* Only show chat if user is logged in */}
+          {currentUser && <Chat />}
         </div>
         <Footer />
       </div>

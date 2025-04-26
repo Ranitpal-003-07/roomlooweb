@@ -106,7 +106,7 @@ const RoommateFinder = () => {
             college: userData.collegeName || "Unknown",
             gender: userData.gender || "Not specified",
             matchPercentage: calculateMatchPercentage(userData, currentUser),
-            image: userData.profileImage || "https://source.unsplash.com/300x400/?student",
+            image: userData.profileImage || "/assets/usr1.jpg",
             about: userData.about || "No description available",
             preference: userData.roomPreference || "Not specified",
             address: userData.currentAddress || "Not specified",
@@ -117,14 +117,15 @@ const RoommateFinder = () => {
             foodsLove: userData.favoriteFoods || [],
             email: userData.email || "Not available",
             field: userData.fieldOfStudy || "Not specified",
-            hasPG: false, // This field doesn't seem to exist in your schema
+            hasPG: userData.currentHostel.length > 0,
             religion: userData.religion || "Not specified",
             foodPreference: userData.foodPreference || "Not specified",
             smokingHabit: userData.smokingHabit || "Not specified",
             alcoholPreference: userData.alcoholConsumption || "Not specified",
             socialLinks: userData.socialLinks || {},
             hometown: userData.hometown || "Not specified",
-            createdAt: userData.createdAt || null
+            createdAt: userData.createdAt || null,
+            isPgOwner: userData.isPgOwner || false, // Add this line
           });
         });
 
@@ -139,7 +140,6 @@ const RoommateFinder = () => {
 
     fetchRoommates();
   }, []);
-
   // Calculate match percentage function
   const calculateMatchPercentage = (userData, currentUser) => {
     let matchScore = 0;
@@ -257,8 +257,7 @@ const RoommateFinder = () => {
 
   // Apply all filters
   useEffect(() => {
-    let filteredResults = [...allRoommates];
-    
+    let filteredResults = allRoommates.filter(roommate => !roommate.isPgOwner);
     // Apply search term filter (across name, college, location)
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
@@ -298,7 +297,9 @@ const RoommateFinder = () => {
     // Apply gender filter
     if (genderFilter.length > 0) {
       filteredResults = filteredResults.filter(roommate =>
-        genderFilter.includes(roommate.gender)
+        genderFilter.some(gender => 
+          roommate.gender.toLowerCase().includes(gender.toLowerCase())
+        )
       );
     }
     

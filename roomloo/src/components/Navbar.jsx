@@ -1,15 +1,27 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext"; // Import Auth Context
 import "../styles/Navbar.css";
+import { useNavigate, NavLink } from "react-router-dom";
+
+
+
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { user, logout } = useAuth(); // Get user & logout function
   
-  // Check if user is a PG owner based on the isPgOwner property
+  const navigate = useNavigate(); // Initialize navigate
+
+  const handleLogout = async () => {
+    try {
+      await logout(); // Call the logout function from AuthContext
+      navigate("/auth", { replace: true }); // Navigate to auth page
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };  // Check if user is a PG owner based on the isPgOwner property
   const isPgOwner = user?.isPgOwner === true;
   console.log("User:", user); // Debugging line to check user object
   console.log("isPgOwner:", isPgOwner); // Debugging line to check isPg
@@ -80,7 +92,7 @@ function Navbar() {
                   <div className="profile-dropdown">
                     <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
                     {isPgOwner && <NavLink to="/dashboard" className="dropdown-item">Dashboard</NavLink>}
-                    <button className="dropdown-item logout-btn" onClick={logout}>Logout</button>
+                    <button className="dropdown-item logout-btn" onClick={handleLogout}>Logout</button>
                   </div>
                 )}
               </div>
