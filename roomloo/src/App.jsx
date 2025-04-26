@@ -17,7 +17,7 @@ import { ToastContainer } from "react-toastify";
 import Chat from './pages/Chat';
 
 function App() {
-  const { loading, currentUser } = useAuth();
+  const { loading, user:currentUser } = useAuth();
 
   if (loading) return <div>Loading...</div>;
 
