@@ -8,62 +8,60 @@ import {
   query,
   where,
   onSnapshot,
+  orderBy
 } from 'firebase/firestore';
 import ChatCard from '../components/ChatCard.jsx';
 import '../styles/chat.css';
 import { useAuth } from '../context/AuthContext';
 
 const Chat = () => {
-  const { user:currentUser } = useAuth();
+  const { user: currentUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [chatList, setChatList] = useState([]);
   const [loading, setLoading] = useState(true);
   const chatRef = useRef(null);
   const [selectedChatId, setSelectedChatId] = useState(null);
 
-
   const handleSelectChat = (chatId) => {
     setSelectedChatId(chatId);
   };
 
-  // Fetch all chats where currentUser is a participant
   useEffect(() => {
     if (!currentUser) return;
-    
+
     setLoading(true);
-    
-    // Create a query to find all chats where the user is a participant
+
+    // Fetch all chats where currentUser is a participant
     const q = query(
       collection(db, 'chats'),
       where('participants', 'array-contains', currentUser.uid)
     );
-    
-    // Set up a real-time listener for changes in the chat list
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const chatData = [];
-      
+
       snapshot.forEach((doc) => {
         const data = doc.data();
-        // Add chat data to our array
         chatData.push({
           id: doc.id,
           ...data,
-          // Find the other participant(s) in the chat
           otherParticipants: data.participants.filter(id => id !== currentUser.uid)
         });
       });
-      
+
+      // Sort chats by lastUpdated (most recent first)
+      chatData.sort((a, b) => b.lastUpdated?.toDate() - a.lastUpdated?.toDate());
+
       setChatList(chatData);
       setLoading(false);
     }, (error) => {
       console.error("Error fetching chats:", error);
       setLoading(false);
     });
-    
-    // Cleanup the listener when the component unmounts
+
     return () => unsubscribe();
   }, [currentUser]);
-  
+
   // Close chat when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
@@ -83,6 +81,9 @@ const Chat = () => {
     };
   }, [isOpen]);
 
+  // Don't render chat component if not logged in
+  if (!currentUser) return null;
+
   return (
     <div className={`chat-container ${isOpen ? 'open' : ''}`} ref={chatRef}>
       <div className="chat-body">
@@ -99,13 +100,13 @@ const Chat = () => {
                 chat={chat}
                 currentUser={currentUser}
                 selectedChatId={selectedChatId}
-                onSelectChat={handleSelectChat} // Pass the function here
+                onSelectChat={handleSelectChat}
               />
             ))
           )}
         </div>
       </div>
-      
+
       <button className="chat-toggle" onClick={() => setIsOpen(!isOpen)}>
         <FontAwesomeIcon icon={isOpen ? faTimes : faCommentDots} />
       </button>

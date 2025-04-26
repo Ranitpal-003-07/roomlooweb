@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
@@ -8,16 +9,17 @@ const ChatCard = ({ chat, currentUser, onSelectChat, selectedChatId }) => {
   const [otherUserInfo, setOtherUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [newMessage, setNewMessage] = useState('');
+  const [userMessageCount, setUserMessageCount] = useState(0);
+  const [messageLimitReached, setMessageLimitReached] = useState(false);
 
   const isSelected = selectedChatId === chat.id;
 
-  // 💡 Early return if currentUser is null
   if (!currentUser) return null;
 
   useEffect(() => {
     const fetchOtherUserInfo = async () => {
       try {
-        const otherUserId = chat.participants.find(uid => uid !== currentUser?.uid);
+        const otherUserId = chat.participants.find(uid => uid !== currentUser.uid);
         if (otherUserId) {
           const userDoc = await getDoc(doc(db, 'users', otherUserId));
           setOtherUserInfo(userDoc.exists() ? userDoc.data() : { displayName: 'Unknown User' });
@@ -33,9 +35,26 @@ const ChatCard = ({ chat, currentUser, onSelectChat, selectedChatId }) => {
     fetchOtherUserInfo();
   }, [chat, currentUser]);
 
+  const getAllMessages = () => {
+    return (chat.msg || []).sort((a, b) => {
+      const timeA = a.timestamp?.toDate?.() || new Date(a.timestamp);
+      const timeB = b.timestamp?.toDate?.() || new Date(b.timestamp);
+      return timeA - timeB;
+    });
+  };
+
+  const messages = getAllMessages();
+
+  useEffect(() => {
+    // Count how many messages this user has sent
+    const count = messages.filter(msg => msg.sender === currentUser.uid).length;
+    setUserMessageCount(count);
+    setMessageLimitReached(count >= 15);
+  }, [messages, currentUser]);
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || messageLimitReached) return;
 
     try {
       const messageObj = {
@@ -44,10 +63,8 @@ const ChatCard = ({ chat, currentUser, onSelectChat, selectedChatId }) => {
         timestamp: new Date(),
       };
 
-      const arrayField = currentUser.uid === chat.user1 ? 'chatUser1' : 'chatUser2';
-
       await updateDoc(doc(db, 'chats', chat.id), {
-        [arrayField]: arrayUnion(messageObj),
+        msg: arrayUnion(messageObj),
         lastUpdated: serverTimestamp(),
       });
 
@@ -57,25 +74,12 @@ const ChatCard = ({ chat, currentUser, onSelectChat, selectedChatId }) => {
     }
   };
 
-  const getAllMessages = () => {
-    const user1Messages = (chat.chatUser1 || []).map(msg => ({ ...msg, arrayField: 'chatUser1' }));
-    const user2Messages = (chat.chatUser2 || []).map(msg => ({ ...msg, arrayField: 'chatUser2' }));
-
-    return [...user1Messages, ...user2Messages].sort((a, b) => {
-      const timeA = a.timestamp?.toDate?.() || new Date(a.timestamp);
-      const timeB = b.timestamp?.toDate?.() || new Date(b.timestamp);
-      return timeA - timeB;
-    });
-  };
-
   const getLastMessage = () => {
-    const allMessages = getAllMessages();
-    return allMessages.length > 0 ? allMessages[allMessages.length - 1] : null;
+    return messages.length > 0 ? messages[messages.length - 1] : null;
   };
 
   const lastMessage = getLastMessage();
 
-  // 📦 Collapsed view
   if (!isSelected) {
     return (
       <div className="chat-card" onClick={() => onSelectChat && onSelectChat(chat.id)}>
@@ -117,9 +121,6 @@ const ChatCard = ({ chat, currentUser, onSelectChat, selectedChatId }) => {
       </div>
     );
   }
-
-  // 📥 Expanded view
-  const messages = getAllMessages();
 
   return (
     <div className="chat-expanded">
@@ -168,9 +169,16 @@ const ChatCard = ({ chat, currentUser, onSelectChat, selectedChatId }) => {
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
           className="message-input"
+          disabled={messageLimitReached}
         />
-        <button type="submit" className="send-button">Send</button>
+        <button type="submit" className="send-button" disabled={messageLimitReached}>
+          Send
+        </button>
       </form>
+
+      {messageLimitReached && (
+        <div className="limit-warning">Message limit reached (15 messages).</div>
+      )}
     </div>
   );
 };

@@ -12,7 +12,8 @@ import {
   getDoc,
   collection,
   addDoc,
-  serverTimestamp
+  serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 
 import { useAuth } from "../context/AuthContext";
@@ -50,33 +51,23 @@ const RoommateDetailsModal = ({ roommate, onClose }) => {
       const chatDocSnap = await getDoc(chatRef);
   
       const newMessage = {
+        sender: senderUid,
         text: message.trim(),
-        timestamp: new Date(), // Using client time to avoid serverTimestamp issues
+        timestamp: new Date(), // Optional: for sorting
       };
   
       if (!chatDocSnap.exists()) {
-        // Create the chat document with initial structure
-        const isUser1 = senderUid === sortedUids[0];
+        // Create new chat document
         await setDoc(chatRef, {
-          user1: sortedUids[0],
-          user2: sortedUids[1],
-          chatUser1: isUser1 ? [newMessage] : [],
-          chatUser2: isUser1 ? [] : [newMessage],
-          participants: [sortedUids[0], sortedUids[1]],
-          lastUpdated: new Date(),
+          participants: sortedUids,
+          msg: [newMessage],
+          lastUpdated: new Date()
         });
       } else {
-        // Update the existing array
-        const chatData = chatDocSnap.data();
-        const isUser1 = senderUid === sortedUids[0];
-        const updatedMessages = isUser1
-          ? [...(chatData.chatUser1 || []), newMessage]
-          : [...(chatData.chatUser2 || []), newMessage];
-  
-        await setDoc(chatRef, {
-          ...chatData,
-          [isUser1 ? "chatUser1" : "chatUser2"]: updatedMessages,
-          lastUpdated: new Date(),
+        // Add message to existing chat
+        await updateDoc(chatRef, {
+          msg: [newMessage, ...chatDocSnap.data().msg],
+          lastUpdated: new Date()
         });
       }
   
@@ -88,6 +79,7 @@ const RoommateDetailsModal = ({ roommate, onClose }) => {
       toast.error("Failed to send message");
     }
   };
+  
   
   // Close modal when clicking outside
   const handleOverlayClick = (e) => {
