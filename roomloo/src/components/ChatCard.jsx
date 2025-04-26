@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
-import '../styles/chatCard.css';
+import '../styles/ChatCard.css';
 
 const ChatCard = ({ chat, currentUser, onSelectChat, selectedChatId }) => {
   const [otherUserInfo, setOtherUserInfo] = useState(null);
