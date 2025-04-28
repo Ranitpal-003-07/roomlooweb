@@ -49,7 +49,7 @@ const Onboarding = () => {
     hometown: "",
     currentAddress: "",
     collegeName: "",
-    profileImageUrl: user?.photoURL || "", // Set default from Google account
+    profileImageUrl:"", 
     socialLinks: {
       instagram: "",
       facebook: "",

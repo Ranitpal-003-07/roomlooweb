@@ -6,12 +6,15 @@ const { onRequest } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
+require("dotenv").config();
+
 
 // Razorpay instance
 const razorpay = new Razorpay({
-  key_id: "rzp_test_h5c0P8rE0VByWw",
-  key_secret: "Vtlw7718ht9kwSjUseeLzuaW",
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+
 
 // Handle CORS
 const handleCors = (req, res) => {

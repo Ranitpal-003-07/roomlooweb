@@ -14,8 +14,11 @@ const PGs = () => {
   const [selectedPG, setSelectedPG] = useState(null);
   const [pgList, setPgList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [priceRange, setPriceRange] = useState({ min: 2000, max: 25000 });
-  const [currentPriceRange, setCurrentPriceRange] = useState(25000);
+  
+  // Set fixed price range from 0 to 40000
+  const [priceRange] = useState({ min: 0, max: 40000 });
+  const [currentPriceRange, setCurrentPriceRange] = useState(40000);
+  
   const [amenityFilters, setAmenityFilters] = useState({
     "WiFi": false,
     "AC": false,
@@ -64,15 +67,6 @@ const PGs = () => {
         )];
         setColleges(uniqueColleges);
         
-        // Find min and max price
-        if (pgData.length > 0) {
-          const prices = pgData.map(pg => parseInt(pg.price) || 0);
-          const minPrice = Math.min(...prices);
-          const maxPrice = Math.max(...prices);
-          setPriceRange({ min: minPrice, max: maxPrice });
-          setCurrentPriceRange(maxPrice);
-        }
-        
         setLoading(false);
       } catch (error) {
         console.error("Error fetching PG listings:", error);
@@ -100,35 +94,41 @@ const PGs = () => {
     const matchesCollege = selectedColleges.length === 0 || 
                           (pg.nearbyCollege && selectedColleges.includes(pg.nearbyCollege));
     
-    // Filter by price
-    const matchesPrice = !pg.price || parseInt(pg.price) <= currentPriceRange;
+    // Filter by price - parse price safely
+    const pgPrice = parseInt(pg.price) || 0;
+    const matchesPrice = pgPrice <= currentPriceRange;
     
     // Filter by room type
     let matchesRoomType = true;
     
     if (roomCount === 1) {
       matchesRoomType = pg.roomType === 'Single';
-    } else {
-      // Check if it's a sharing room with the correct count
-      if (pg.roomType === 'Sharing') {
-        if (pg.sharingType) {
-          matchesRoomType = 
-            pg.sharingType.startsWith(`${roomCount}`) || 
-            pg.sharingType.includes(`(${roomCount}`) ||
-            pg.sharingType === `${roomCount}`;
-        } else {
-          matchesRoomType = false;
-        }
+    } else if (pg.roomType === 'Sharing') {
+      // Improved sharing type check
+      if (pg.sharingType) {
+        // Convert to string to ensure safe operations
+        const sharingTypeStr = String(pg.sharingType).trim();
+        matchesRoomType = 
+          sharingTypeStr === String(roomCount) || 
+          sharingTypeStr.startsWith(`${roomCount} `) || 
+          sharingTypeStr.includes(`(${roomCount})`) ||
+          sharingTypeStr.includes(`(${roomCount} `);
       } else {
         matchesRoomType = false;
       }
+    } else {
+      matchesRoomType = false;
     }
     
     // Filter by amenities
     const matchesAmenities = Object.keys(amenityFilters).every(amenity => {
       // Only check amenities that are selected (true)
-      return !amenityFilters[amenity] || 
-             (pg.amenities && Array.isArray(pg.amenities) && pg.amenities.includes(amenity));
+      if (!amenityFilters[amenity]) return true;
+      
+      // Safely check if amenities exists and contains the amenity
+      return pg.amenities && 
+             Array.isArray(pg.amenities) && 
+             pg.amenities.includes(amenity);
     });
     
     return matchesSearch && matchesLocation && matchesCollege && 
@@ -191,7 +191,7 @@ const PGs = () => {
           {/* Live Map Placeholder */}
           <div className="map-placeholder">📍 Live Map Here</div>
 
-          {/* Price Slider */}
+          {/* Price Slider - now fixed from 0 to 40000 */}
           <div className="filter-group">
             <h4>Price Range: ₹{currentPriceRange}</h4>
             <input 

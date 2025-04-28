@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -15,6 +15,8 @@ import Subscription from "./pages/Subscription";
 import { useAuth } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 import Chat from './pages/Chat';
+
+
 
 function App() {
   const { loading, user:currentUser } = useAuth();

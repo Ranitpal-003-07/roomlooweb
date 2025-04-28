@@ -1,10 +1,10 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import { FiCheck, FiX, FiCreditCard } from "react-icons/fi";
 import "../styles/Subscription.css";
+
 
 const Subscription = () => {
   const {  user } = useAuth();
@@ -128,7 +128,7 @@ const Subscription = () => {
     const createRazorpayOrder = async () => {
       try {
         const response = await fetch(
-          "https://us-central1-roomloo-web.cloudfunctions.net/createOrder",
+          "https://createorder-ezcljhodfa-uc.a.run.app",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -158,7 +158,7 @@ const Subscription = () => {
       }
 
       const options = {
-        key: "rzp_test_h5c0P8rE0VByWw", // Replace with your actual Razorpay key
+        key: "rzp_test_3W0tTbO7uTN3Yt", // Replace with your actual Razorpay key
         amount: plan.price * 100, // Amount in paise
         currency: "INR",
         name: "PG Finder",
@@ -203,7 +203,7 @@ const Subscription = () => {
   // Handle successful payment completion
   const handlePaymentSuccess = async (paymentResponse, plan) => {
     try {
-      const verification = await fetch(" https://us-central1-roomloo-web.cloudfunctions.net/verifyPayment", {
+      const verification = await fetch(" https://verifypayment-ezcljhodfa-uc.a.run.app", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
