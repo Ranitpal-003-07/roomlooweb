@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { initializeApp } from "firebase/app";
 import { getAnalytics, setDefaultEventParameters } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from "firebase/auth";
@@ -9,7 +8,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDA4miIw6R-cD6xmSTrlu_cOis0QcqNrS4",
   authDomain: "roomloo-web.firebaseapp.com",
   projectId: "roomloo-web",
-  storageBucket: "roomloo-web.appspot.com", // Changed from firebasestorage.app
+  storageBucket: "roomloo-web.firebasestorage.app", // Changed from firebasestorage.app
   messagingSenderId: "732358793482",
   appId: "1:732358793482:web:1f2b7d4c4e61432a6e42f3",
   measurementId: "G-KJNDCPKHNS"
@@ -19,17 +18,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Analytics configuration
-// In your firebase.js
 const analytics = getAnalytics(app);
-if (typeof window !== 'undefined') {
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){window.dataLayer.push(arguments);}
-  gtag('config', 'G-KJNDCPKHNS', {
-    cookie_domain: window.location.hostname,
-    cookie_flags: 'SameSite=None; Secure',
-    cookie_expires: 63072000 // 2 years in seconds
-  });
-}
+setDefaultEventParameters({
+  hostname: window.location.hostname // Helps with domain tracking
+});
+
 // Auth configuration
 const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence) // Changed to local persistence
