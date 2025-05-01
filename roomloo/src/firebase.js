@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { initializeApp } from "firebase/app";
 import { getAnalytics, setDefaultEventParameters } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from "firebase/auth";
@@ -18,11 +19,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Analytics configuration
+// In your firebase.js
 const analytics = getAnalytics(app);
-setDefaultEventParameters({
-  hostname: window.location.hostname // Helps with domain tracking
-});
-
+if (typeof window !== 'undefined') {
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){window.dataLayer.push(arguments);}
+  gtag('config', 'G-KJNDCPKHNS', {
+    cookie_domain: window.location.hostname,
+    cookie_flags: 'SameSite=None; Secure',
+    cookie_expires: 63072000 // 2 years in seconds
+  });
+}
 // Auth configuration
 const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence) // Changed to local persistence

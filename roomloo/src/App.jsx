@@ -15,11 +15,36 @@ import Subscription from "./pages/Subscription";
 import { useAuth } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 import Chat from './pages/Chat';
+import { useEffect } from "react";
 
 
 
 function App() {
   const { loading, user:currentUser } = useAuth();
+
+  useEffect(() => {
+    // Correct existing cookies
+    document.cookie = `_ga=; path=/; domain=.${window.location.hostname}; Secure; SameSite=None`;
+    document.cookie = `_ga_KJNDCPKHNS=; path=/; domain=.${window.location.hostname}; Secure; SameSite=None`;
+    
+    // Set new cookies with proper domain
+    const gaCookie = `_ga=GA1.2.${Math.random().toString(36).substring(2, 8)}; ` +
+                     `domain=.${window.location.hostname}; ` +
+                     `path=/; ` +
+                     `max-age=63072000; ` +
+                     `Secure; ` +
+                     `SameSite=None`;
+    
+    const ga4Cookie = `_ga_KJNDCPKHNS=GS1.1.${Date.now()}.1; ` +
+                      `domain=.${window.location.hostname}; ` +
+                      `path=/; ` +
+                      `max-age=63072000; ` +
+                      `Secure; ` +
+                      `SameSite=None`;
+    
+    document.cookie = gaCookie;
+    document.cookie = ga4Cookie;
+  }, []);
 
   if (loading) return <div>Loading...</div>;
 
