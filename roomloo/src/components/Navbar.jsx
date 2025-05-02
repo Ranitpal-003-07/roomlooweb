@@ -88,7 +88,7 @@ function Navbar() {
           <div className="auth-section">
             {user ? (
               // Show Profile Icon if User is Logged In
-              <div className="profile-container" onClick={() => setIsProfileOpen(!isProfileOpen)}>
+              <div className="profile-container1" onClick={() => setIsProfileOpen(!isProfileOpen)}>
                 <FaUserCircle className="profile-icon" />
                 {isProfileOpen && (
                   <div className="profile-dropdown">

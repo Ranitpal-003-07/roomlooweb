@@ -133,6 +133,7 @@
   cursor: pointer;
 }
 
+
 .profile-icon {
   font-size: 28px;
   color: #333;
@@ -143,6 +144,7 @@
   color: #4a6cf7;
   transform: scale(1.1);
 }
+
 
 .profile-dropdown {
   position: absolute;
@@ -291,6 +293,23 @@
   background: rgba(74, 108, 247, 0.08);
 }
 
+.sidebar .auth-section{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+.profile-container1{
+  margin-top: 1rem;
+  position:absolute;
+  right:6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .sidebar .auth-buttons {
   display: flex;
   flex-direction: column;
@@ -346,6 +365,6 @@
 
 @media (max-width: 480px) {
   .sidebar {
-    width: 85%;
+    width: 70%;
   }
 }
