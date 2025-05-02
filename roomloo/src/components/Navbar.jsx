@@ -71,6 +71,7 @@ function Navbar() {
           &#9776;
         </div>
         <div className={`sidebar ${isOpen ? "open" : ""}`}>
+          <div className="nav-close-btn" onClick={() => setIsOpen(false)}>&times;</div>
           <NavLink to="/" className="nav-item" onClick={() => setIsOpen(false)}>Home</NavLink>
           <NavLink to="/pgs" className="nav-item" onClick={() => setIsOpen(false)}>PGs</NavLink>
           
@@ -91,8 +92,8 @@ function Navbar() {
                 <FaUserCircle className="profile-icon" />
                 {isProfileOpen && (
                   <div className="profile-dropdown">
-                    <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
-                    {isPgOwner && <NavLink to="/dashboard" className="dropdown-item">Dashboard</NavLink>}
+                    <NavLink to="/profile" className="dropdown-item" onClick={() => setIsOpen(false)} >Profile</NavLink>
+                    {isPgOwner && <NavLink to="/dashboard" className="dropdown-item" onClick={() => setIsOpen(false)}>Dashboard</NavLink>}
                     <button className="dropdown-item logout-btn" onClick={handleLogout}>Logout</button>
                   </div>
                 )}

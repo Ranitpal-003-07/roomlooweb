@@ -1002,6 +1002,130 @@ const Profile = () => {
           )}
         </div>
       </div>
+
+      {/* Replace the existing social icons section in the pr-connect div with this code */}
+        <div className="pr-connect2">
+          <div className="pr-connect-header">
+            <h4>Connect with me</h4>
+            {!editingSocialLinks ? (
+              <button 
+                className="pr-edit-btn" 
+                onClick={() => {
+                  setEditingSocialLinks(true);
+                  setTempSocialLinks({...userData.socialLinks});
+                }}
+              >
+                <FontAwesomeIcon icon={faPen} />
+              </button>
+            ) : null}
+          </div>
+          
+          {!editingSocialLinks ? (
+            <div className="pr-social-icons">
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.linkedin ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.linkedin)}
+                disabled={!userData.socialLinks?.linkedin}
+              >
+                <FontAwesomeIcon icon={faLinkedinIn} />
+              </button>
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.github ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.github)}
+                disabled={!userData.socialLinks?.github}
+              >
+                <FontAwesomeIcon icon={faGithub} />
+              </button>
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.instagram ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.instagram)}
+                disabled={!userData.socialLinks?.instagram}
+              >
+                <FontAwesomeIcon icon={faInstagram} />
+              </button>
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.twitter ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.twitter)}
+                disabled={!userData.socialLinks?.twitter}
+              >
+                <FontAwesomeIcon icon={faTwitter} />
+              </button>
+              <button 
+                className={`pr-icon-btn ${userData.socialLinks?.facebook ? 'active' : ''}`}
+                onClick={() => openSocialLink(userData.socialLinks?.facebook)}
+                disabled={!userData.socialLinks?.facebook}
+              >
+                <FontAwesomeIcon icon={faGlobe} />
+              </button>
+            </div>
+          ) : (
+            <div className="pr-social-links-form">
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faLinkedinIn} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.linkedin} 
+                    onChange={(e) => handleSocialLinkChange('linkedin', e.target.value)}
+                    placeholder="LinkedIn URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faGithub} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.github} 
+                    onChange={(e) => handleSocialLinkChange('github', e.target.value)}
+                    placeholder="GitHub URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faInstagram} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.instagram} 
+                    onChange={(e) => handleSocialLinkChange('instagram', e.target.value)}
+                    placeholder="Instagram URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faTwitter} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.twitter} 
+                    onChange={(e) => handleSocialLinkChange('twitter', e.target.value)}
+                    placeholder="Twitter URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-social-input-group">
+                <label>
+                  <FontAwesomeIcon icon={faGlobe} />
+                  <input 
+                    type="text" 
+                    value={tempSocialLinks.facebook} 
+                    onChange={(e) => handleSocialLinkChange('facebook', e.target.value)}
+                    placeholder="Facebook URL"
+                  />
+                </label>
+              </div>
+              <div className="pr-edit-actions">
+                <button className="pr-save-btn" onClick={handleSaveSocialLinks}>
+                  <FontAwesomeIcon icon={faSave} />
+                </button>
+                <button className="pr-cancel-btn" onClick={() => setEditingSocialLinks(false)}>
+                  <FontAwesomeIcon icon={faTimesCircle} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
   
       {/* Profile Header Info */}
       <div className="pr-header-info">

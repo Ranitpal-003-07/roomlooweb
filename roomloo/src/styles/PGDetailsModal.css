@@ -492,3 +492,228 @@
     align-self: flex-start;
   }
 }
+
+/* Chat Section Styles */
+.pgd-chat-panel {
+  position: relative;
+  width: 100%;
+  height: fit-content;
+  background: linear-gradient(135deg, #ffffff, #f7f9fc);
+  border-radius: 16px 0 0 0;
+  box-shadow: -25px 0 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  border-radius: 4rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pgd-chat-panel.pgd-active {
+  transform: translateX(0);
+}
+
+.pgd-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.pgd-chat-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.pgd-chat-header button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.pgd-chat-input {
+  display: flex;
+  gap: 10px;
+  padding: 1.5rem;
+  background: white;
+  border-top: 2px solid #f0f2f5;
+}
+
+.pgd-chat-input input {
+  flex: 1;
+  padding: 12px 20px;
+  border: 2px solid #f0f2f5;
+  border-radius: 30px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.pgd-chat-input input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.pgd-chat-input button {
+  padding: 12px 25px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  border-radius: 30px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.pgd-chat-input button:hover {
+  transform: translateY(-1px);
+}
+
+/* Reviews Section Styles */
+.pgd-review-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.pgd-rating-stars {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.pgd-star {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0 2px;
+  transition: all 0.2s ease;
+}
+
+.pgd-star:hover {
+  color: #ffd700;
+  transform: scale(1.1);
+}
+
+.pgd-star.pgd-filled {
+  color: #ffd700;
+}
+
+.pgd-review-form textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #f0f2f5;
+  border-radius: 12px;
+  min-height: 100px;
+  resize: vertical;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.pgd-review-form textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.pgd-submit-review {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.pgd-submit-review:hover {
+  transform: translateY(-1px);
+}
+
+.pgd-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pgd-review {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+}
+
+.pgd-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.pgd-review-user {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.pgd-review-rating {
+  display: flex;
+  gap: 3px;
+}
+
+.pgd-review-rating .pgd-filled {
+  color: #ffd700;
+}
+
+.pgd-review-date {
+  color: #95a5a6;
+  font-size: 0.9rem;
+}
+
+.pgd-review-comment {
+  color: #596677;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Chat Button Styles */
+.pgd-chat {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+}
+
+.pgd-chat:hover {
+  background: linear-gradient(135deg, #ff5252, #ff7b7b);
+  transform: translateY(-3px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .pgd-chat-panel {
+
+    width: 100%;
+    height: fit-content;
+    border-radius: 16px 16px 0 0;
+  }
+  
+  .pgd-review-form {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .pgd-contact-buttons .pgd-contact-btn {
+    flex: 1 0 100%;
+  }
+  
+  .pgd-review-form textarea {
+    min-height: 80px;
+  }
+}
