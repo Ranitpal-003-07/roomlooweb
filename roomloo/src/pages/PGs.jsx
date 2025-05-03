@@ -14,6 +14,7 @@ const PGs = () => {
   const [selectedPG, setSelectedPG] = useState(null);
   const [pgList, setPgList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false); // New state for mobile filters
   
   // Set fixed price range from 0 to 40000
   const [priceRange] = useState({ min: 0, max: 40000 });
@@ -176,6 +177,7 @@ const PGs = () => {
           className="search-bar"
         />
       </div>
+      
 
       <div className="pg-content">
         {/* Left Filter Section */}
