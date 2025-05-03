@@ -81,25 +81,20 @@ function Navbar() {
             <NavLink to="/dashboard" className="nav-item" onClick={() => setIsOpen(false)}>Dashboard</NavLink> : 
             <NavLink to="/roommate" className="nav-item" onClick={() => setIsOpen(false)}>Roommate</NavLink>
           )}
-          
           {!user && <NavLink to="/roommate" className="nav-item" onClick={() => setIsOpen(false)}>Roommate</NavLink>}
           <NavLink to="/update" className="nav-item" onClick={() => setIsOpen(false)}>Update</NavLink>
-         
+
+          {/* Auth section - directly show Profile, Dashboard, Logout if user is logged in */}
           <div className="auth-section">
             {user ? (
-              // Show Profile Icon if User is Logged In
-              <div className="profile-container1" onClick={() => setIsProfileOpen(!isProfileOpen)}>
-                <FaUserCircle className="profile-icon" />
-                {isProfileOpen && (
-                  <div className="profile-dropdown">
-                    <NavLink to="/profile" className="dropdown-item" onClick={() => setIsOpen(false)} >Profile</NavLink>
-                    {isPgOwner && <NavLink to="/dashboard" className="dropdown-item" onClick={() => setIsOpen(false)}>Dashboard</NavLink>}
-                    <button className="dropdown-item logout-btn" onClick={handleLogout}>Logout</button>
-                  </div>
+              <>
+                <NavLink to="/profile" className="nav-item" onClick={() => setIsOpen(false)}>Profile</NavLink>
+                {isPgOwner && (
+                  <NavLink to="/dashboard" className="nav-item" onClick={() => setIsOpen(false)}>Dashboard</NavLink>
                 )}
-              </div>
+                <button className="nav-item logout-btn" onClick={handleLogout}>Logout</button>
+              </>
             ) : (
-              // Show Login Button if No User
               <NavLink to="/auth" className="login-btn" onClick={() => setIsOpen(false)}>LogIn/SignUp</NavLink>
             )}
           </div>
