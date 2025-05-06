@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/PGDetailsModal.css";
-import { FiX, FiPhone,FiMessageCircle,FiStar, FiMail, FiMapPin, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiX, FiPhone, FiMessageCircle, FiStar, FiMail, FiMapPin, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import { db } from "../firebase";
@@ -14,9 +14,28 @@ const PGDetailsModal = ({ pg, onClose }) => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [reviews, setReviews] = useState(pg.reviews || []);
+  const [rulesAndPolicies, setRulesAndPolicies] = useState(null);
   const { user: currentUser } = useAuth();
 
-
+  // Fetch rules and policies from Firestore
+  useEffect(() => {
+    const fetchRulesAndPolicies = async () => {
+      if (pg?.id) {
+        try {
+          const pgRef = doc(db, "pgListings", pg.id);
+          const pgDoc = await getDoc(pgRef);
+          
+          if (pgDoc.exists() && pgDoc.data().rulesAndPolicies) {
+            setRulesAndPolicies(pgDoc.data().rulesAndPolicies);
+          }
+        } catch (error) {
+          console.error("Error fetching rules and policies:", error);
+        }
+      }
+    };
+    
+    fetchRulesAndPolicies();
+  }, [pg?.id]);
 
   if (!pg) return null;
 
@@ -262,6 +281,33 @@ const PGDetailsModal = ({ pg, onClose }) => {
               </div>
             </div>
 
+            {/* Rules and Policies Section (replacing House Rules) */}
+            <div className="pgd-section">
+              <h3 className="pgd-section-title">Rules and Policies</h3>
+              {rulesAndPolicies ? (
+                <div className="pgd-rules-policies">
+                  <div className="pgd-policy-item">
+                    <span className="pgd-policy-label">Gate Closing Time:</span>
+                    <span className="pgd-policy-value">{rulesAndPolicies.gateClosingTime || "Not specified"}</span>
+                  </div>
+                  <div className="pgd-policy-item">
+                    <span className="pgd-policy-label">Full-Time Warden:</span>
+                    <span className="pgd-policy-value">{rulesAndPolicies.hasFullTimeWarden ? "Yes" : "No"}</span>
+                  </div>
+                  <div className="pgd-policy-item">
+                    <span className="pgd-policy-label">Notice Period:</span>
+                    <span className="pgd-policy-value">{rulesAndPolicies.noticePeriod || "Not specified"}</span>
+                  </div>
+                  <div className="pgd-policy-item">
+                    <span className="pgd-policy-label">Visitors Allowed:</span>
+                    <span className="pgd-policy-value">{rulesAndPolicies.visitorsAllowed ? "Yes" : "No"}</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="pgd-no-data">Rules and policies information not available</p>
+              )}
+            </div>
+
             {/* Nearby Places */}
             <div className="pgd-section">
               <h3 className="pgd-section-title">Nearby Places</h3>
@@ -295,14 +341,6 @@ const PGDetailsModal = ({ pg, onClose }) => {
                 )}
               </div>
             </div>
-
-            {/* Rules */}
-            {pg.rules && (
-              <div className="pgd-section">
-                <h3 className="pgd-section-title">House Rules</h3>
-                <p className="pgd-rules">{pg.rules}</p>
-              </div>
-            )}
 
             {/* Contact Information */}
             <div className="pgd-section pgd-contact">

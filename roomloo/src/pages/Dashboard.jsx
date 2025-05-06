@@ -4,8 +4,9 @@ import { FiPlus, FiCreditCard } from 'react-icons/fi';
 import PGCard2 from "../components/PGCard2";
 import PostModal2 from "../components/PostModal2";
 import { collection, query, where, getDocs, deleteDoc, doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, storage } from "../firebase";
 import "../styles/Dashboard.css";
+import { deleteObject, ref, listAll } from "firebase/storage";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -148,19 +149,31 @@ const Dashboard = () => {
     handleClosePostModal();
   };
 
-  // Handler for deleting a PG listing
-  const handleDeleteListing = async (listingId) => {
-    try {
-      // Delete from Firebase
-      await deleteDoc(doc(db, "pgListings", listingId));
-      
-      // Update UI
-      setUserListings(userListings.filter(listing => listing.id !== listingId));
-    } catch (error) {
-      console.error("Error deleting listing:", error);
-      // Handle error (show notification, etc.)
-    }
-  };
+ // Handler for deleting a PG listing
+const handleDeleteListing = async (listingId) => {
+  try {
+    // First delete images from Storage
+    const storageRef = ref(storage, `pg_images/${listingId}`);
+    const listResult = await listAll(storageRef);
+
+    // Delete all files in the folder
+    const deletePromises = listResult.items.map(itemRef => deleteObject(itemRef));
+    await Promise.all(deletePromises);
+
+    // Optional: Delete the folder itself (though in Firebase Storage, folders are virtual)
+    // await deleteObject(storageRef);
+
+    // Then delete from Firestore
+    await deleteDoc(doc(db, "pgListings", listingId));
+
+    // Update UI
+    setUserListings(userListings.filter(listing => listing.id !== listingId));
+    
+  } catch (error) {
+    console.error("Error deleting listing:", error);
+    // Handle error (show notification, etc.)
+  }
+};
 
   // Render subscription status banner
   const renderSubscriptionBanner = () => {

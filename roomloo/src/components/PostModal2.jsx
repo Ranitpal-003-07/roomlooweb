@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { FiX, FiChevronRight, FiChevronLeft, FiCheck } from 'react-icons/fi';
 import "../styles/PostModal2.css";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { db, storage } from "../firebase";
 
 const PostModal = ({ isOpen, onClose, onSave, editingListing, userId }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     googleMapLink: '',
@@ -21,20 +22,31 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing, userId }) => {
     nearbyLandmark: '',
     nearbyCollege: '',
     price: '',
+    gender:'',
     ownerPhone: '',
     ownerEmail: '',
     description: '',
-    rules: '',
+    rulesAndPolicies: {
+      gateClosingTime: '10:00 PM',
+      hasFullTimeWarden: false,
+      visitorsAllowed: false,
+      noticePeriod: '1 month'
+    },
     images: [],
     imageFiles: []
   });
-  
+
   useEffect(() => {
     if (editingListing) {
       setFormData({
         ...editingListing,
         description: editingListing.description || '',
-        rules: editingListing.rules || '',
+        rulesAndPolicies: editingListing.rulesAndPolicies || {
+          gateClosingTime: '10:00 PM',
+          hasFullTimeWarden: false,
+          visitorsAllowed: false,
+          noticePeriod: '1 month'
+        },
         imageFiles: []
       });
     }
@@ -74,7 +86,12 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing, userId }) => {
     }
   };
 
-  const removeImage = (index) => {
+  const removeImage = async (index) => {
+    // If it's an existing image (has URL but no file), mark for deletion
+    if (formData.images[index] && !formData.imageFiles[index]) {
+      setImagesToDelete([...imagesToDelete, formData.images[index]]);
+    }
+
     const updatedImages = [...formData.images];
     const updatedImageFiles = [...formData.imageFiles];
     
@@ -88,13 +105,28 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing, userId }) => {
     });
   };
 
+  const deleteImagesFromStorage = async (imageUrls) => {
+    for (const url of imageUrls) {
+      try {
+        // Extract the path from the URL
+        const pathStart = url.indexOf('/o/') + 3;
+        const pathEnd = url.indexOf('?');
+        const path = decodeURIComponent(url.substring(pathStart, pathEnd));
+        
+        const imageRef = ref(storage, path);
+        await deleteObject(imageRef);
+      } catch (error) {
+        console.error("Error deleting image:", error);
+      }
+    }
+  };
+
   const uploadImages = async (pgId) => {
     if (formData.imageFiles.length === 0) return [];
     
     const imageUrls = [];
     
     for (const file of formData.imageFiles) {
-      // Create a reference with PG ID folder
       const storageRef = ref(storage, `pg_images/${pgId}/${Date.now()}_${file.name}`);
       
       try {
@@ -122,32 +154,38 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing, userId }) => {
         ownerId: editingListing ? editingListing.ownerId : userId
       };
 
+      // Delete marked images from storage
+      if (imagesToDelete.length > 0) {
+        await deleteImagesFromStorage(imagesToDelete);
+      }
+
       // Remove temporary data
       delete pgData.imageFiles;
 
       if (editingListing && editingListing.id) {
         // Update existing document
         pgId = editingListing.id;
-        const imageUrls = await uploadImages(pgId);
-        pgData.images = [...editingListing.images || [], ...imageUrls];
+        const newImageUrls = await uploadImages(pgId);
+        
+        // Combine remaining existing images with new images
+        const existingImages = (editingListing.images || [])
+          .filter(img => !imagesToDelete.includes(img));
+        
+        pgData.images = [...existingImages, ...newImageUrls];
         
         await updateDoc(doc(db, "pgListings", pgId), pgData);
       } else {
-        // Add new document first to get the ID
-        const docRef = await addDoc(collection(db, "pgListings"), {
-          ...pgData,
-          images: [] // We'll update this after uploading images
-        });
-        
+        // Add new document
+        const docRef = await addDoc(collection(db, "pgListings"), pgData);
         pgId = docRef.id;
-        const imageUrls = await uploadImages(pgId);
+        const newImageUrls = await uploadImages(pgId);
         
-        // Update the document with the image URLs
+        // Update document with image URLs
         await updateDoc(doc(db, "pgListings", pgId), {
-          images: imageUrls
+          images: newImageUrls
         });
         
-        pgData.images = imageUrls;
+        pgData.images = newImageUrls;
         pgData.id = pgId;
       }
       
@@ -157,11 +195,14 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing, userId }) => {
       console.error("Error saving PG listing:", error);
     } finally {
       setLoading(false);
+      setImagesToDelete([]);
     }
   };
 
   const nextStep = () => setCurrentStep(currentStep + 1);
   const prevStep = () => setCurrentStep(currentStep - 1);
+
+  if (!isOpen) return null;
   // Render the current step form
   const renderStepContent = () => {
     switch (currentStep) {
@@ -268,6 +309,21 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing, userId }) => {
                 required
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="gender">PG type(Gender)?</label>
+              <select
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select sharing type</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Co-ed">Co-ed</option>
+                </select>
+            </div>
           </div>
         );
       
@@ -343,58 +399,159 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing, userId }) => {
           </div>
         );
       
-      case 5:
-        return (
-          <div className="form-step">
-            <h3>Contact Information</h3>
-            <div className="form-group">
-              <label htmlFor="ownerPhone">Phone Number*</label>
-              <input
-                type="tel"
-                id="ownerPhone"
-                name="ownerPhone"
-                value={formData.ownerPhone}
-                onChange={handleChange}
-                placeholder="Enter contact phone number"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="ownerEmail">Email Address</label>
-              <input
-                type="email"
-                id="ownerEmail"
-                name="ownerEmail"
-                value={formData.ownerEmail}
-                onChange={handleChange}
-                placeholder="Enter contact email address"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="description">Description</label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Describe your PG accommodation"
-                rows="4"
-              ></textarea>
-            </div>
-            <div className="form-group">
-              <label htmlFor="rules">House Rules</label>
-              <textarea
-                id="rules"
-                name="rules"
-                value={formData.rules}
-                onChange={handleChange}
-                placeholder="List any house rules or restrictions"
-                rows="4"
-              ></textarea>
-            </div>
-          </div>
-        );
+        case 5:
+          return (
+            <div className="form-step">
+              <h3>Contact Information</h3>
+              <div className="form-group">
+                <label htmlFor="ownerPhone">Phone Number*</label>
+                <input
+                  type="tel"
+                  id="ownerPhone"
+                  name="ownerPhone"
+                  value={formData.ownerPhone}
+                  onChange={handleChange}
+                  placeholder="Enter contact phone number"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="ownerEmail">Email Address</label>
+                <input
+                  type="email"
+                  id="ownerEmail"
+                  name="ownerEmail"
+                  value={formData.ownerEmail}
+                  onChange={handleChange}
+                  placeholder="Enter contact email address"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="description">Description</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Describe your PG accommodation"
+                  rows="4"
+                ></textarea>
+              </div>
+              
+              {/* New Rules and Policies Section */}
+              <div className="form-group">
+                <h4>Rules & Policies</h4>
+                
+                <div className="policy-item">
+                  <label>Gate Closing Time</label>
+                  <select
+                    name="rulesAndPolicies.gateClosingTime"
+                    value={formData.rulesAndPolicies.gateClosingTime}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      rulesAndPolicies: {
+                        ...formData.rulesAndPolicies,
+                        gateClosingTime: e.target.value
+                      }
+                    })}
+                  >
+                    {['9:00 PM', '10:00 PM', '11:00 PM', '12:00 AM', 'No Restrictions'].map(time => (
+                      <option key={time} value={time}>{time}</option>
+                    ))}
+                  </select>
+                </div>
       
+                <div className="policy-item">
+                  <label>Full Time Warden?</label>
+                  <div className="radio-group">
+                    <label>
+                      <input
+                        type="radio"
+                        name="hasFullTimeWarden"
+                        checked={formData.rulesAndPolicies.hasFullTimeWarden === true}
+                        onChange={() => setFormData({
+                          ...formData,
+                          rulesAndPolicies: {
+                            ...formData.rulesAndPolicies,
+                            hasFullTimeWarden: true
+                          }
+                        })}
+                      />
+                      Yes
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="hasFullTimeWarden"
+                        checked={formData.rulesAndPolicies.hasFullTimeWarden === false}
+                        onChange={() => setFormData({
+                          ...formData,
+                          rulesAndPolicies: {
+                            ...formData.rulesAndPolicies,
+                            hasFullTimeWarden: false
+                          }
+                        })}
+                      />
+                      No
+                    </label>
+                  </div>
+                </div>
+      
+                <div className="policy-item">
+                  <label>Visitors Allowed?</label>
+                  <div className="radio-group">
+                    <label>
+                      <input
+                        type="radio"
+                        name="visitorsAllowed"
+                        checked={formData.rulesAndPolicies.visitorsAllowed === true}
+                        onChange={() => setFormData({
+                          ...formData,
+                          rulesAndPolicies: {
+                            ...formData.rulesAndPolicies,
+                            visitorsAllowed: true
+                          }
+                        })}
+                      />
+                      Yes
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="visitorsAllowed"
+                        checked={formData.rulesAndPolicies.visitorsAllowed === false}
+                        onChange={() => setFormData({
+                          ...formData,
+                          rulesAndPolicies: {
+                            ...formData.rulesAndPolicies,
+                            visitorsAllowed: false
+                          }
+                        })}
+                      />
+                      No
+                    </label>
+                  </div>
+                </div>
+      
+                <div className="policy-item">
+                  <label>Notice Period</label>
+                  <input
+                    type="text"
+                    name="rulesAndPolicies.noticePeriod"
+                    value={formData.rulesAndPolicies.noticePeriod}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      rulesAndPolicies: {
+                        ...formData.rulesAndPolicies,
+                        noticePeriod: e.target.value
+                      }
+                    })}
+                    placeholder="E.g., 1 month, 15 days"
+                  />
+                </div>
+              </div>
+            </div>
+          );
       case 6:
         return (
           <div className="form-step">
@@ -506,6 +663,29 @@ const PostModal = ({ isOpen, onClose, onSave, editingListing, userId }) => {
                 </div>
               )}
             </div>
+            <div className="review-section">
+          <h4>Rules & Policies</h4>
+          <div className="review-item">
+            <span className="review-label">Gate Closing Time:</span>
+            <span className="review-value">{formData.rulesAndPolicies.gateClosingTime}</span>
+          </div>
+          <div className="review-item">
+            <span className="review-label">Full Time Warden:</span>
+            <span className="review-value">
+              {formData.rulesAndPolicies.hasFullTimeWarden ? 'Yes' : 'No'}
+            </span>
+          </div>
+          <div className="review-item">
+            <span className="review-label">Visitors Allowed:</span>
+            <span className="review-value">
+              {formData.rulesAndPolicies.visitorsAllowed ? 'Yes' : 'No'}
+            </span>
+          </div>
+          <div className="review-item">
+            <span className="review-label">Notice Period:</span>
+            <span className="review-value">{formData.rulesAndPolicies.noticePeriod}</span>
+          </div>
+        </div>
             
             {formData.images.length > 0 && (
               <div className="review-section">

@@ -165,8 +165,7 @@ const HomeSection = () => {
           ].map((item, index) => (
             <div key={index} className="hm-card">
               <img src={item.img} alt={item.title} className="hm-card-img" />
-              <div className="hm-price-tag">{item.price}</div>
-              <div className="hm-card-content">
+                <div className="hm-card-content">
                 <p>{item.title}</p>
               </div>
               <div className="hm-arrow-icon">➜</div>
